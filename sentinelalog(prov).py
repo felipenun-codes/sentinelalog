@@ -11,12 +11,21 @@
 #parte delas — por exemplo, os dois primeiros caracteres seguidos de asteriscos. Deve existir uma
 #opção específica para revelar uma matrícula.
 
+
+#registroda = registro de acessos
+#registrodus = registro de usuários
+#registroaud = registro de ações
+
 #import os
 #os.system("cls")
+from datetime import datetime
 
-#criei listas pra algumas variaveis, mas como as informacoes serao registradas em um arquivos .txt nao sei se utilizaremos. por enquanto deixei ai msm 
-nomes =[]
+nomes_u =[]
 matriculas = []
+matriculascen = [] #matriculas censuradas
+def censurar_matricula():
+    for i in range (len(matriculas)):
+        matriculascen.append((matriculas[i])[:2] + "*"*(len(matriculas)-2))
 perfis = []
 horariopermitidos = []
 def horariopermitido(perfil):
@@ -29,8 +38,42 @@ def horariopermitido(perfil):
     return horariopermitido
 maquinasda = []
 
+def registrar_usuario():
+    while True:
+      perfil = input("digite o perfil do usuário a ser registrado ('estudante', 'professor' ou 'administrador'): ")
+      if perfil == "estudante" or perfil == "professor" or perfil == "administrador":
+          perfis.append(perfil)
+          nome = input("digite o nome do usuário: ")
+          nomes_u.append (nome)
+          matricula = input("digite a matrícula do usuário: ")
+          matriculas.append(matricula)
+          horariopermitidos.append(horariopermitido(perfil))
+                        
+          registrodus = open("registrodus.txt", "a")
+          registrodus.write(nome + ", " + matricula[:2]+ "*"*((len(list(matricula)))-2) + ", " + perfil + ", " + horariopermitido(perfil) + " \n")
+          registrodus.close() #esse registro cria um arquivo .txt com a matricula censurada
+          break
 
-def pausar():
+      else:
+         print("perfil inválido.")
+
+def registrar_acesso(nome_usuario):
+    registroda = open("registroda.txt", "a")
+    horario_de_acesso = datetime.now()
+    nome = nome_usuario
+    maquinadeacesso = input("digite a maquina de acesso do usuário: ") 
+    maquinasda.append(maquinadeacesso) 
+    while True:
+           resultado = input("digite o resultado do acesso: ")
+           if resultado == "sucesso" or resultado == "falha":
+                registroda = open("registroda.txt", "a")
+                registroda.write(nome + ", " + str(horario_de_acesso) + ", " + maquinadeacesso + ", " + resultado + " \n")
+                registroda.close()
+                break
+           else:
+                print("resultado inválido. digite novamente. ")
+
+def pausar(): 
     input("\nPressione Enter para continuar...")
 
 
@@ -48,6 +91,25 @@ def mostrar_menu():
 
 
 while True:
+    print("qual usuário está tentando acessar o programa? ")
+    if (len(nomes_u)) > 0:
+        print("usuários registrados: ")
+        for i in range(len(nomes_u)):
+            print(f"{[i+1]}. {nomes_u[i]}")
+    usuarioacesso = int(input("digite o número do usuário que deseja acessar o pro grama (ou digite 0, caso deseje registrar um novo usuário): "))
+
+    if usuarioacesso <= (len(nomes_u)):
+        if usuarioacesso == 0:
+            registrar_usuario()
+            nome_usuario = nomes_u[(len(nomes_u)-1)]
+            registrar_acesso(nome_usuario)
+        else:
+            nome_usuario = nomes_u[i-1]
+            registrar_acesso(nome_usuario)
+    else:
+        print("usuario invalido.")
+        break
+  
     mostrar_menu()
     comando =  int(input("digite de '0' a '8' para selecionar um comando: "))
 
@@ -57,36 +119,15 @@ while True:
 
     elif comando == 2:
         #Registrar acesso
-        perfil = input("digite o perfil do usuário a ser registrado ('estudante', 'professor' ou 'administrador'): ")
-        if perfil == "estudante" or perfil == "professor" or perfil == "administrador":
-            perfis.append(perfil)
-            nome = input("digite o nome do usuário: ")
-            nomes.append (nome)
-            matricula = input("digite a matrícula do usuário: ")
-            matriculas.append(matricula)
-            horariopermitidos.append(horariopermitido(perfil))
-            maquinadeacesso = input("digite a maquina de acesso do usuário: ")
-            maquinasda.append(maquinadeacesso)
-            while True:
-                resultado = input("digite o resultado do acesso: ")
-                if resultado == "sucesso" or resultado == "falha":
-            
-                    registroda = open("registroda.txt", "a")
-                    registroda.write(nome + ", " + matricula + ", " + perfil + ", " + horariopermitido(perfil) + ", " + maquinadeacesso + ", " + resultado + " \n")
-                    registroda.close()
-                    break
-                else:
-                    print("resultado inválido. digite novamente. ")
-        else:
-            print("perfil inválido.")
+        registrar_usuario()
 
     elif comando == 3:
         #Consultar acessos
 
-        #esse metodo (provisorio) mostra a matricula dos usuarios (pois as mmatriculas sao registradas juntamente as outras informacoes no arquivo criado no registro de acessos)
-        registroda = open("registroda.txt", "r", encoding="utf8")
-        print(registroda.read())
-        registroda.close()
+        #esse metodo le as matriculas censuradas
+        registrodus = open("registrodus.txt", "r", encoding="utf8")
+        print(registrodus.read())
+        registrodus.close() 
 
     elif comando == 4:
         #Alertas de máquinas compartilhadas
