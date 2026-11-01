@@ -22,12 +22,7 @@ from datetime import datetime
 
 nomes_u =[]
 matriculas = []
-matriculascen = [] #matriculas censuradas
-def censurar_matricula():
-    for i in range (len(matriculas)):
-        matriculascen.append((matriculas[i])[:2] + "*"*(len(matriculas)-2))
 perfis = []
-horariopermitidos = []
 def horariopermitido(perfil):
     if perfil == "estudante":
         horariopermitido = "7h às 18h" 
@@ -47,7 +42,6 @@ def registrar_usuario():
           nomes_u.append (nome)
           matricula = input("digite a matrícula do usuário: ")
           matriculas.append(matricula)
-          horariopermitidos.append(horariopermitido(perfil))
                         
           registrodus = open("registrodus.txt", "a")
           registrodus.write(nome + ", " + matricula[:2]+ "*"*((len(list(matricula)))-2) + ", " + perfil + ", " + horariopermitido(perfil) + " \n")
@@ -57,9 +51,20 @@ def registrar_usuario():
       else:
          print("perfil inválido.")
 
+def atualizar_registrodus():
+    registrodus = open("registrodus.txt", "w")
+    for i in range(len(nomes_u)):
+        registrodus.write(nomes_u[i] + ", " + matriculas[i][:2]+ "*"*((len(list(matriculas[i])))-2) + ", " + perfis[i] + ", " + horariopermitido(perfis[i]) + " \n")
+    registrodus.close()
+
+def visualizar_nomes_u():
+    if len(nomes_u) > 0:
+        print("\nUsuários registrados: ")
+        for i in range(len(nomes_u)):
+            print(f"{[i+1]}. {nomes_u[i]}")
+
 def registrar_acesso(nome_usuario):
-    registroda = open("registroda.txt", "a")
-    horario_de_acesso = datetime.now()
+    horario_de_acesso = datetime.now().replace(microsecond=0)
     nome = nome_usuario
     maquinadeacesso = input("digite a maquina de acesso do usuário: ") 
     maquinasda.append(maquinadeacesso) 
@@ -72,6 +77,14 @@ def registrar_acesso(nome_usuario):
                 break
            else:
                 print("resultado inválido. digite novamente. ")
+
+def registrar_operacao(operacao: str, i_usuario):   #registro de auditoria
+    horario_de_acesso = datetime.now().replace(microsecond=0)
+    for i in range(nomes_u):
+        if i == i_usuario:
+            registroaud = open("registroaud.txt", "a")
+            registroaud.write("Ação: " + str(operacao) + "| Usuário afetado: " + nomes_u[i_usuario] + ", " + str(horario_de_acesso))
+            registroaud.close()
 
 def pausar(): 
     input("\nPressione Enter para continuar...")
@@ -90,12 +103,10 @@ def mostrar_menu():
     print("0. Sair")
 
 
+#MENU:
 while True:
     print("qual usuário está tentando acessar o programa? ")
-    if (len(nomes_u)) > 0:
-        print("usuários registrados: ")
-        for i in range(len(nomes_u)):
-            print(f"{[i+1]}. {nomes_u[i]}")
+    visualizar_nomes_u()
     usuarioacesso = int(input("digite o número do usuário que deseja acessar o pro grama (ou digite 0, caso deseje registrar um novo usuário): "))
 
     if usuarioacesso <= (len(nomes_u)):
@@ -104,7 +115,7 @@ while True:
             nome_usuario = nomes_u[(len(nomes_u)-1)]
             registrar_acesso(nome_usuario)
         else:
-            nome_usuario = nomes_u[i-1]
+            nome_usuario = nomes_u[usuarioacesso-1]
             registrar_acesso(nome_usuario)
     else:
         print("usuario invalido.")
@@ -115,16 +126,59 @@ while True:
 
     if comando == 1:
         #Gerenciar usuários
-        print("dps")
+        print("que ação deseja realizar? ")
+        operacao = int(input("1. editar dados de um usuário \n2. excluir usuário \n3. visualizar matricula de um usuário (requer permissão de administrador)"))
+        if operacao == 1 or operacao == 2 or operacao == 3:
+            visualizar_nomes_u()
+            usuario_e = (int(input("digite o numero do usuário afetado: ")))-1
+            if usuario_e+1 <= len(nomes_u):
+                if operacao == 1:
+                    print(nomes_u[usuario_e] + ", " + matriculas[usuario_e][:2]+ "*"*((len(list(matriculas[usuario_e])))-2) + ", " + perfis[usuario_e])
+                    editardado = input("qual dado deseja editar? ('nome', 'matrícula' ou 'perfil')")
+                    if editardado == "nome":
+                        registrar_operacao("editar dados: (mudança de nome)", usuario_e)
+                        nome_novo = input("digite o nome novo do usuário: ")
+                        nomes_u[usuario_e] = nome_novo
+                        atualizar_registrodus()
+                    elif editardado == "matricula":
+                        registrar_operacao("editar dados: (mudança de matricula)", usuario_e)
+                        matricula_nova = input("digite a nova matricula: ")
+                        matriculas[usuario_e] = matricula_nova
+                        atualizar_registrodus()
+                    elif editardado == "perfil":
+                        registrar_operacao("editar dados: (mudança de perfil)", usuario_e)
+                        perfil_novo = input("digite o perfil novo do usuário: ")
+                        perfis[usuario_e] = perfil_novo
+                        atualizar_registrodus()
+                elif operacao == 2:
+                    registrar_operacao("excluir usuário", usuario_e)
+                    nomes_u.pop(usuario_e)
+                    matriculas.pop(usuario_e)
+                    perfis.pop(usuario_e)
+                    atualizar_registrodus()
+                elif operacao == 3:
+                    #TODO: visualizar matricula do usuario (pedindo alguma senha ou coisa do tipo para permitir)
+                    print()
+                else:
+                    print("operação inválida.")
+                    break
+            elif usuario_e < 0 or usuario_e+1 > len(nomes_u):
+                print("usuário inválido.") 
+                break           
+                    
+        else:
+            print("ação inválida.")
+            break
 
     elif comando == 2:
-        #Registrar acesso
+        #Registrar usuário
         registrar_usuario()
+        registrar_operacao("registro de usuário", (len(nomes_u)-1))
 
     elif comando == 3:
         #Consultar acessos
 
-        #esse metodo le as matriculas censuradas
+        #esse metodo lê as matriculas censuradas
         registrodus = open("registrodus.txt", "r", encoding="utf8")
         print(registrodus.read())
         registrodus.close() 
