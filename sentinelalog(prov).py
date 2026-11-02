@@ -63,6 +63,11 @@ def visualizar_nomes_u():
         for i in range(len(nomes_u)):
             print(f"{[i+1]}. {nomes_u[i]}")
 
+def visualizar_registro_x(registro_txt : str):
+    v_registro = open(registro_txt, "r", encoding="utf8")
+    print(v_registro.read())
+    v_registro.close()
+
 def registrar_acesso(nome_usuario):
     horario_de_acesso = datetime.now().replace(microsecond=0)
     nome = nome_usuario
@@ -179,9 +184,7 @@ while True:
         #Consultar acessos
 
         #esse metodo lê as matriculas censuradas
-        registrodus = open("registrodus.txt", "r", encoding="utf8")
-        print(registrodus.read())
-        registrodus.close() 
+        visualizar_registro_x("registrodus.txt")
 
     elif comando == 4:
         #Alertas de máquinas compartilhadas
@@ -193,7 +196,7 @@ while True:
 
     elif comando == 6:
         #Consultar log de auditoria
-        print("dps")
+        visualizar_registro_x("registroaud.txt")
 
     elif comando == 7:
         #Funcionalidade extra
