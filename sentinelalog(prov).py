@@ -33,7 +33,7 @@ def horariopermitido(perfil):
     return horariopermitido
 maquinasda = []
 
-def registrar_usuario():
+def registrar_usuario():    #'registrodu.txt' registra as matriculas ja censuradas
     while True:
       perfil = input("digite o perfil do usuário a ser registrado ('estudante', 'professor' ou 'administrador'): ")
       if perfil == "estudante" or perfil == "professor" or perfil == "administrador":
@@ -51,7 +51,7 @@ def registrar_usuario():
       else:
          print("perfil inválido.")
 
-def atualizar_registrodus():
+def atualizar_registrodus():     #'regstrodus.txt' registra as matriculas ja censuradas
     registrodus = open("registrodus.txt", "w")
     for i in range(len(nomes_u)):
         registrodus.write(nomes_u[i] + ", " + matriculas[i][:2]+ "*"*((len(list(matriculas[i])))-2) + ", " + perfis[i] + ", " + horariopermitido(perfis[i]) + " \n")
@@ -83,13 +83,19 @@ def registrar_acesso(nome_usuario):
            else:
                 print("resultado inválido. digite novamente. ")
 
-def registrar_operacao(operacao: str, i_usuario):   #registro de auditoria
+def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de auditoria
     horario_de_acesso = datetime.now().replace(microsecond=0)
-    for i in range(nomes_u):
-        if i == i_usuario:
-            registroaud = open("registroaud.txt", "a")
-            registroaud.write("Ação: " + str(operacao) + "| Usuário afetado: " + nomes_u[i_usuario] + ", " + str(horario_de_acesso))
-            registroaud.close()
+    if i_usuario == "None":
+        registroaud = open("registroaud.txt", "a")
+        registroaud.write("Ação: " + str(operacao) + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso))
+        registroaud.close()       
+    else:
+        for i in range(nomes_u):
+            if i == i_usuario:
+                registroaud = open("registroaud.txt", "a")
+                registroaud.write("Ação: " + str(operacao) + "| Usuário afetado: " + nomes_u[i_usuario] + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso))
+                registroaud.close()
+
 
 def pausar(): 
     input("\nPressione Enter para continuar...")
@@ -97,14 +103,15 @@ def pausar():
 
 def mostrar_menu():
     print("=== SentinelaLog ===")
-    print("1. Gerenciar usuários")
-    print("2. Registrar acesso")
-    print("3. Consultar acessos")
-    print("4. Alertas de máquinas compartilhadas")
-    print("5. Relatório de segurança")
-    print("6. Consultar log de auditoria")
-    print("7. Funcionalidade extra")
-    print("8. Perguntar à IA (em breve)")
+    print("1. Visualizar usuários")
+    print("2. Gerenciar usuários")
+    print("3. Registrar usuário")
+    print("4. Consultar acessos")
+    print("5. Alertas de máquinas compartilhadas")
+    print("6. Relatório de segurança")
+    print("7. Consultar log de auditoria")
+    print("8. Funcionalidade extra")
+    print("9. Perguntar à IA (em breve)")
     print("0. Sair")
 
 
@@ -114,7 +121,7 @@ while True:
     visualizar_nomes_u()
     usuarioacesso = int(input("digite o número do usuário que deseja acessar o pro grama (ou digite 0, caso deseje registrar um novo usuário): "))
 
-    if usuarioacesso <= (len(nomes_u)):
+    if usuarioacesso <= (len(nomes_u)):   #'nome_usuario' será o registrado como responsável pela ação x no registro de auditoria
         if usuarioacesso == 0:
             registrar_usuario()
             nome_usuario = nomes_u[(len(nomes_u)-1)]
@@ -130,6 +137,11 @@ while True:
     comando =  int(input("digite de '0' a '8' para selecionar um comando: "))
 
     if comando == 1:
+        #esse metodo não mostra as matriculas
+        visualizar_registro_x("registrodus.txt")
+        registrar_operacao("vizualizar registro de usuários", "None", nome_usuario)
+
+    elif comando == 2:
         #Gerenciar usuários
         print("que ação deseja realizar? ")
         operacao = int(input("1. editar dados de um usuário \n2. excluir usuário \n3. visualizar matricula de um usuário (requer permissão de administrador)"))
@@ -141,22 +153,22 @@ while True:
                     print(nomes_u[usuario_e] + ", " + matriculas[usuario_e][:2]+ "*"*((len(list(matriculas[usuario_e])))-2) + ", " + perfis[usuario_e])
                     editardado = input("qual dado deseja editar? ('nome', 'matrícula' ou 'perfil')")
                     if editardado == "nome":
-                        registrar_operacao("editar dados: (mudança de nome)", usuario_e)
+                        registrar_operacao("editar dados: (mudança de nome)", usuario_e, nome_usuario)
                         nome_novo = input("digite o nome novo do usuário: ")
                         nomes_u[usuario_e] = nome_novo
                         atualizar_registrodus()
                     elif editardado == "matricula":
-                        registrar_operacao("editar dados: (mudança de matricula)", usuario_e)
+                        registrar_operacao("editar dados: (mudança de matricula)", usuario_e, nome_usuario)
                         matricula_nova = input("digite a nova matricula: ")
                         matriculas[usuario_e] = matricula_nova
                         atualizar_registrodus()
                     elif editardado == "perfil":
-                        registrar_operacao("editar dados: (mudança de perfil)", usuario_e)
+                        registrar_operacao("editar dados: (mudança de perfil)", usuario_e, nome_usuario)
                         perfil_novo = input("digite o perfil novo do usuário: ")
                         perfis[usuario_e] = perfil_novo
                         atualizar_registrodus()
                 elif operacao == 2:
-                    registrar_operacao("excluir usuário", usuario_e)
+                    registrar_operacao("excluir usuário", usuario_e, nome_usuario)
                     nomes_u.pop(usuario_e)
                     matriculas.pop(usuario_e)
                     perfis.pop(usuario_e)
@@ -175,34 +187,34 @@ while True:
             print("ação inválida.")
             break
 
-    elif comando == 2:
+    elif comando == 3:
         #Registrar usuário
         registrar_usuario()
-        registrar_operacao("registro de usuário", (len(nomes_u)-1))
-
-    elif comando == 3:
-        #Consultar acessos
-
-        #esse metodo lê as matriculas censuradas
-        visualizar_registro_x("registrodus.txt")
+        registrar_operacao("registro de usuário", (len(nomes_u)-1), nome_usuario)
 
     elif comando == 4:
+        #Consultar acessos
+        visualizar_registro_x("registroda.txt")
+        registrar_operacao("consultar acessos", "None", nome_usuario )
+
+    elif comando == 5:
         #Alertas de máquinas compartilhadas
         print("dps")
 
-    elif comando == 5:
+    elif comando == 6:
         #Relatório de segurança
         print("dps")
 
-    elif comando == 6:
+    elif comando == 7:
         #Consultar log de auditoria
         visualizar_registro_x("registroaud.txt")
+        registrar_operacao("consultar auditoria", "None", nome_usuario)
 
-    elif comando == 7:
+    elif comando == 8:
         #Funcionalidade extra
         print("dps")
 
-    elif comando == 8:
+    elif comando == 9:
         #Perguntar à IA (em breve)
         print("dps")
 
