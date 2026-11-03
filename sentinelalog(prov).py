@@ -45,9 +45,9 @@ hora_do_bloqueio = []        # utilizado para travar o sistema
 dia_do_bloqueio = []
 usuarios_bloqueados = []
 
-def registrar_usuario():    #'registrodu.txt' registra as matriculas ja censuradas
+def registrar_usuario():    #'registrodus.txt' registra as matriculas ja censuradas
     while True:
-      perfil = input("digite o perfil do usuário a ser registrado ('estudante', 'professor' ou 'administrador'): ")
+      perfil = input("digite o perfil do usuário a ser registrado ('estudante', 'professor' ou 'administrador'): ").lower()
       if perfil == "estudante" or perfil == "professor" or perfil == "administrador":
           perfis.append(perfil)
           nome = input("digite o nome do usuário: ")
@@ -94,7 +94,7 @@ def registrar_acesso(nome_usuario, resultado: str, risco: str):
 
 def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina sucesso ou falha do acesso
     senha = input(f"digite a {senha_a} de {user_permitido}: ")
-    if user_permitido == nomes_u[i_usuario] and senha_a == "matricula":
+    if user_permitido == nomes_u[i_usuario] and senha_a == "matricula":      #matricula como senha; utilizada para 'Gerenciar usuário'
         for i in range (4):
             if senha == matriculas[i_usuario]:
                 return True
@@ -102,6 +102,11 @@ def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina suces
                 print(f"matricula errada. tente novamente [{3-i} tentativas restantes] ")
                 if 3 - i < 1:
                     return False   
+    elif user_permitido == "adm":
+        if senha_a != "senhadeadministrador":        #senha obviamente provisoria
+            return False
+        elif senha_a == "senhadeadministrador":       #senha novamente provisoria
+            return True
 
 def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de auditoria
     horario_de_acesso = datetime.now().replace(microsecond=0)
@@ -221,10 +226,6 @@ while True:
                         matriculas.pop(usuario_e)
                         perfis.pop(usuario_e)
                         atualizar_registrodus()
-                    elif operacao == 3:
-                        registrar_acesso(nome_usuario, "sucesso", "normal")
-                        #TODO: visualizar matricula do usuario (pedindo alguma senha ou coisa do tipo para permitir)
-                        print()
                     else:
                         if contador_falhas >= 3:            #VALORES DECIDIDOS ARBITRARIAMENTE
                             contador_falhas =+1
@@ -236,6 +237,16 @@ while True:
                         break
                 elif not senha_acesso("matricula", nomes_u[usuario_e], usuario_e):
                     registrar_acesso(nome_usuario, "falha", "suspeito")     #falhas repetidas da matricula == acesso suspeito registrado
+                    contador_falhas =+1
+            elif operacao == 3:
+                senhadeadm = input("digite a senha de administrador: ")      #senha de adm pra ver a matricula
+                if senha_acesso(str(senhadeadm), "adm"):
+                    print(f"nomes_u[usuario_e], Matrícula: {matriculas[usuario_e]}")
+                    registrar_acesso(nome_usuario, "sucesso", "normal")
+                    registrar_operacao("visualizar matrícula", usuario_e, nome_usuario)
+                elif not senha_acesso(str(senhadeadm), "adm"):
+                    print("senha incorreta. ")
+                    registrar_acesso(nome_usuario, "falha", "suspeito")
                     contador_falhas =+1
             elif usuario_e < 0 or usuario_e+1 > len(nomes_u):
                 print("usuário inválido.") 
