@@ -74,6 +74,8 @@ def visualizar_nomes_u():
         print("\nUsuários registrados: ")
         for i in range(len(nomes_u)):
             print(f"{[i+1]}. {nomes_u[i]}")
+    else: 
+        print("[nenhum usuário registrado]")
 
 def visualizar_registro_x(registro_txt : str):
     v_registro = open(registro_txt, "r", encoding="utf8")
@@ -131,7 +133,7 @@ def mostrar_menu():
 
 #MENU:
 while True:
-    print("qual usuário está tentando acessar o programa? ")
+    print("qual usuário está tentando selecionar o programa? ")
     visualizar_nomes_u()
     usuarioacesso = int(input("digite o número do usuário que deseja acessar o pro grama (ou digite 0, caso deseje registrar um novo usuário): "))
 
