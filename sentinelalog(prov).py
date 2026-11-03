@@ -23,7 +23,7 @@ from datetime import datetime
 nomes_u =[]       #listas usadas para atualizar e manter o registrodus.txt
 matriculas = []
 perfis = []
-def horariopermitido(perfil):
+def horariopermitido(perfil):           #utilizada no registrodus.txt
     if perfil == "estudante":
         horariopermitido = "7h às 18h" 
     elif perfil == "professor":
@@ -102,10 +102,10 @@ def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina suces
                 print(f"matricula errada. tente novamente [{3-i} tentativas restantes] ")
                 if 3 - i < 1:
                     return False   
-    elif user_permitido == "adm":
-        if senha_a != "senhadeadministrador":        #senha obviamente provisoria
+    elif user_permitido == "administrador":
+        if senha != "senhadeadministrador":        #senha obviamente provisoria
             return False
-        elif senha_a == "senhadeadministrador":       #senha novamente provisoria
+        elif senha == "senhadeadministrador":       #senha novamente provisoria
             return True
 
 def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de auditoria
@@ -193,12 +193,21 @@ while True:
 
     elif comando == 2:
         #Gerenciar usuários
-        print("que ação deseja realizar? ")
+        print("Que ação deseja realizar? ")
         operacao = int(input("1. editar dados de um usuário \n2. excluir usuário \n3. visualizar matricula de um usuário (requer permissão de administrador)"))
         if operacao == 1 or operacao == 2 or operacao == 3:
             visualizar_nomes_u()
-            usuario_e = (int(input("digite o numero do usuário afetado: ")))-1
-            if usuario_e+1 <= len(nomes_u):
+            usuario_e = (int(input("digite o numero do usuário afetado: ")))-1         
+            if operacao == 3:
+                if senha_acesso("senha", "administrador"):
+                    print(f"nomes_u[usuario_e], Matrícula: {matriculas[usuario_e]}")
+                    registrar_acesso(nome_usuario, "sucesso", "normal")
+                    registrar_operacao("visualizar matrícula", usuario_e, nome_usuario)
+                else:
+                    print("senha incorreta. ")
+                    registrar_acesso(nome_usuario, "falha", "suspeito")
+                    contador_falhas =+1
+            elif usuario_e+1 <= len(nomes_u):
                 if senha_acesso("matricula", nomes_u[usuario_e], usuario_e):       #requer a matricula para mudar qualquer dado do usuário
                     if operacao == 1:
                         registrar_acesso(nome_usuario, "sucesso", "normal")
@@ -228,27 +237,17 @@ while True:
                         atualizar_registrodus()
                     else:
                         if contador_falhas >= 3:            #VALORES DECIDIDOS ARBITRARIAMENTE
-                            contador_falhas =+1
-                            registrar_acesso(nome_usuario, "falha", "suspeito")
+                           contador_falhas =+1
+                           registrar_acesso(nome_usuario, "falha", "suspeito")
                         else:
                             contador_falhas =+1
                             registrar_acesso(nome_usuario, "falha", "normal")                                                    
-                        print("operação inválida.")
-                        break
+                            print("operação inválida.")
+                            break
                 else:
                     registrar_acesso(nome_usuario, "falha", "suspeito")     #falhas repetidas da matricula == acesso suspeito registrado
                     contador_falhas =+1
-            elif operacao == 3:
-                senhadeadm = input("digite a senha de administrador: ")      #senha de adm pra ver a matricula
-                if senha_acesso(str(senhadeadm), "adm"):
-                    print(f"nomes_u[usuario_e], Matrícula: {matriculas[usuario_e]}")
-                    registrar_acesso(nome_usuario, "sucesso", "normal")
-                    registrar_operacao("visualizar matrícula", usuario_e, nome_usuario)
-                else:
-                    print("senha incorreta. ")
-                    registrar_acesso(nome_usuario, "falha", "suspeito")
-                    contador_falhas =+1
-            elif usuario_e < 0 or usuario_e+1 > len(nomes_u):
+            else:
                 print("usuário inválido.") 
                 break           
 
