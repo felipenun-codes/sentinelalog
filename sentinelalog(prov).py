@@ -20,7 +20,7 @@
 #os.system("cls")
 from datetime import datetime
 
-nomes_u =[]
+nomes_u =[]       #listas usadas para atualizar e manter o registrodus.txt
 matriculas = []
 perfis = []
 def horariopermitido(perfil):
@@ -34,6 +34,7 @@ def horariopermitido(perfil):
 maquinasda = []
 contador_falhas = 0         #contador de falhas associado a um usuário específico
 ultimo_usuario = ""         #variavel para manutenção 
+hora_do_bloqueio = 0        # utilizado para travar o sistema
 
 def registrar_usuario():    #'registrodu.txt' registra as matriculas ja censuradas
     while True:
@@ -139,12 +140,17 @@ while True:
         print("usuario invalido.")
         break
 
+    if nome_usuario == ultimo_usuario and datetime.now().hour <= hora_do_bloqueio + 2:
+        print(f"O acesso desse usuário está bloqueado. Tente novamente às {hora_do_bloqueio + 2}h.")
+        break
+
     if nome_usuario != ultimo_usuario:
         contador_falhas = 0
         ultimo_usuario = nome_usuario
     elif nome_usuario == ultimo_usuario and contador_falhas > 5:        #esse método deixa uma brecha na identificação de falhas. um sujeito mal intencionado pode mudar usuários para resetar o contador_falhas. como proposta de solução, poderíamos implementar algo com datetime para limitar acesso por determinado período de tempo  
         print("SentinelaLog identificou várias tentativas de acesso sucessivas que resultaram em falha. Acesso bloqueado.")
         registrar_acesso(nome_usuario, "falha", "crítico")
+        hora_do_bloqueio = datetime.now().hour
         break
     ultimo_usuario = nome_usuario
   
@@ -213,12 +219,13 @@ while True:
 
     elif comando == 3:
         #Registrar usuário
-        registrar_acesso(nome_usuario, "sucesso", "normal")
+        registrar_acesso(nome_usuario, "sucesso", "normal")     #não acho q seja necessario implementar senha pra isso
         registrar_usuario()
         registrar_operacao("registro de usuário", (len(nomes_u)-1), nome_usuario)
 
     elif comando == 4:
         #Consultar acessos
+        registrar_acesso(nome_usuario, "sucesso", "normal")         #podemos implementar senha es quiserem    
         visualizar_registro_x("registroda.txt")
         registrar_operacao("consultar acessos", "None", nome_usuario )
 
@@ -232,6 +239,7 @@ while True:
 
     elif comando == 7:
         #Consultar log de auditoria
+        registrar_acesso(nome_usuario, "sucesso", "normal")        #podemos implementar senha se quiserem
         visualizar_registro_x("registroaud.txt")
         registrar_operacao("consultar auditoria", "None", nome_usuario)
 
