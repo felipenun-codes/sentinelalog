@@ -115,10 +115,6 @@ def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de audi
                 registroaud.close()
 
 
-def pausar(): 
-    input("\nPressione Enter para continuar...")
-
-
 def mostrar_menu():
     print("=== SentinelaLog ===")
     print("1. Visualizar usuários")
@@ -158,14 +154,14 @@ while True:
 
     if len(usuarios_bloqueados) >= 1:
         for i in range (len(usuarios_bloqueados)):
-            if nome_usuario == usuarios_bloqueados[i] and datetime.now().hour < (hora_do_bloqueio[i]+2):
-                print("O acesso desse usuário está bloqueado. Tente novamente mais tarde.")
-                registrar_acesso(nome_usuario, "falha", "bloqueado pelo sistema")
-                break
-            elif nome_usuario == usuarios_bloqueados[i] and (datetime.now().hour >= (hora_do_bloqueio[i]+2) or datetime.now().day > dia_do_bloqueio[i]):
+            if nome_usuario == usuarios_bloqueados[i] and (datetime.now().hour >= (hora_do_bloqueio[i]+2) or datetime.now().day > dia_do_bloqueio[i]):
                 usuarios_bloqueados.pop(i)
                 hora_do_bloqueio.pop(i)
                 dia_do_bloqueio.pop(i)
+            elif nome_usuario == usuarios_bloqueados[i] and datetime.now().hour < (hora_do_bloqueio[i]+2):
+                print("O acesso desse usuário está bloqueado. Tente novamente mais tarde.")
+                registrar_acesso(nome_usuario, "falha", "bloqueado pelo sistema")
+                break
 
 
     if nome_usuario != ultimo_usuario:
