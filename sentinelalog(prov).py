@@ -31,10 +31,19 @@ def horariopermitido(perfil):
     elif perfil == "administrador":
         horariopermitido = "7h às 22h"
     return horariopermitido
+def ran_horariopermitido(perfil):        #checagem de horário de uso para permissao de uso
+    if perfil == "estudante":
+        return range(7, 19)
+    elif perfil == "professor":
+        return range(7, 21)
+    elif perfil == "administrador":
+        return range(7, 23)
 maquinasda = []
 contador_falhas = 0         #contador de falhas associado a um usuário específico
 ultimo_usuario = ""         #variavel para manutenção 
-hora_do_bloqueio = 0        # utilizado para travar o sistema
+hora_do_bloqueio = []        # utilizado para travar o sistema
+dia_do_bloqueio = []
+usuarios_bloqueados = []
 
 def registrar_usuario():    #'registrodu.txt' registra as matriculas ja censuradas
     while True:
@@ -140,17 +149,34 @@ while True:
         print("usuario invalido.")
         break
 
-    if nome_usuario == ultimo_usuario and datetime.now().hour <= hora_do_bloqueio + 2:
-        print(f"O acesso desse usuário está bloqueado. Tente novamente às {hora_do_bloqueio + 2}h.")
-        break
+    for i in range (len(nomes_u)):           #permissão dependendo  horário
+        if nome_usuario == nomes_u[i]:
+            if datetime.now().hour not in (ran_horariopermitido(perfis[i])):
+                print("Fora do horário de acesso permitido. Acesso negado. ")
+                registrar_acesso(nome_usuario, "falha", "suspeito")
+                break
+
+    if len(usuarios_bloqueados) >= 1:
+        for i in range (len(usuarios_bloqueados)):
+            if nome_usuario == usuarios_bloqueados[i] and datetime.now().hour < (hora_do_bloqueio[i]+2):
+                print("O acesso desse usuário está bloqueado. Tente novamente mais tarde.")
+                registrar_acesso(nome_usuario, "falha", "bloqueado pelo sistema")
+                break
+            elif nome_usuario == usuarios_bloqueados[i] and (datetime.now().hour >= (hora_do_bloqueio[i]+2) or datetime.now().day > dia_do_bloqueio[i]):
+                usuarios_bloqueados.pop(i)
+                hora_do_bloqueio.pop(i)
+                dia_do_bloqueio.pop(i)
+
 
     if nome_usuario != ultimo_usuario:
         contador_falhas = 0
         ultimo_usuario = nome_usuario
-    elif nome_usuario == ultimo_usuario and contador_falhas > 5:        #esse método deixa uma brecha na identificação de falhas. um sujeito mal intencionado pode mudar usuários para resetar o contador_falhas. como proposta de solução, poderíamos implementar algo com datetime para limitar acesso por determinado período de tempo  
+    elif nome_usuario == ultimo_usuario and contador_falhas > 5:        #esse método deixa uma brecha na identificação de falhas. um sujeito mal intencionado pode mudar usuários para resetar o contador_falhas.
         print("SentinelaLog identificou várias tentativas de acesso sucessivas que resultaram em falha. Acesso bloqueado.")
         registrar_acesso(nome_usuario, "falha", "crítico")
-        hora_do_bloqueio = datetime.now().hour
+        usuarios_bloqueados.append(nome_usuario)
+        hora_do_bloqueio.append(datetime.now().hour)
+        dia_do_bloqueio.append(datetime.now().day)
         break
     ultimo_usuario = nome_usuario
   
@@ -221,7 +247,7 @@ while True:
         #Registrar usuário
         registrar_acesso(nome_usuario, "sucesso", "normal")     #não acho q seja necessario implementar senha pra isso
         registrar_usuario()
-        registrar_operacao("registro de usuário", (len(nomes_u)-1), nome_usuario)
+        registrar_operacao("registro de usuário", nomes_u[(len(nomes_u)-1)], nome_usuario)
 
     elif comando == 4:
         #Consultar acessos
