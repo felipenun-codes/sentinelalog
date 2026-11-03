@@ -32,6 +32,8 @@ def horariopermitido(perfil):
         horariopermitido = "7h às 22h"
     return horariopermitido
 maquinasda = []
+contador_falhas = 0         #contador de falhas associado a um usuário específico
+ultimo_usuario = ""         #variavel para manutenção 
 
 def registrar_usuario():    #'registrodu.txt' registra as matriculas ja censuradas
     while True:
@@ -68,20 +70,26 @@ def visualizar_registro_x(registro_txt : str):
     print(v_registro.read())
     v_registro.close()
 
-def registrar_acesso(nome_usuario):
+def registrar_acesso(nome_usuario, resultado: str, risco: str):
     horario_de_acesso = datetime.now().replace(microsecond=0)
     nome = nome_usuario
     maquinadeacesso = input("digite a maquina de acesso do usuário: ") 
     maquinasda.append(maquinadeacesso) 
-    while True:
-           resultado = input("digite o resultado do acesso: ")
-           if resultado == "sucesso" or resultado == "falha":
-                registroda = open("registroda.txt", "a")
-                registroda.write(nome + ", " + str(horario_de_acesso) + ", " + maquinadeacesso + ", " + resultado + " \n")
-                registroda.close()
-                break
-           else:
-                print("resultado inválido. digite novamente. ")
+    registroda = open("registroda.txt", "a")
+    registroda.write(nome + ", " + str(horario_de_acesso) + ", " + maquinadeacesso + ", Resultado: " + resultado + " | Risco: " + risco + " \n")
+    registroda.close()
+
+
+def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina sucesso ou falha do acesso
+    senha = input(f"digite a {senha_a} de {user_permitido}: ")
+    if user_permitido == nomes_u[i_usuario] and senha_a == "matricula":
+        for i in range (4):
+            if senha == matriculas[i_usuario]:
+                return True
+            else:
+                print(f"matricula errada. tente novamente [{3-i} tentativas restantes] ")
+                if 3 - i < 1:
+                    return False   
 
 def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de auditoria
     horario_de_acesso = datetime.now().replace(microsecond=0)
@@ -125,13 +133,20 @@ while True:
         if usuarioacesso == 0:
             registrar_usuario()
             nome_usuario = nomes_u[(len(nomes_u)-1)]
-            registrar_acesso(nome_usuario)
         else:
             nome_usuario = nomes_u[usuarioacesso-1]
-            registrar_acesso(nome_usuario)
     else:
         print("usuario invalido.")
         break
+
+    if nome_usuario != ultimo_usuario:
+        contador_falhas = 0
+        ultimo_usuario = nome_usuario
+    elif nome_usuario == ultimo_usuario and contador_falhas > 5:        #esse método deixa uma brecha na identificação de falhas. um sujeito mal intencionado pode mudar usuários para resetar o contador_falhas. como proposta de solução, poderíamos implementar algo com datetime para limitar acesso por determinado período de tempo  
+        print("SentinelaLog identificou várias tentativas de acesso sucessivas que resultaram em falha. Acesso bloqueado.")
+        registrar_acesso(nome_usuario, "falha", "crítico")
+        break
+    ultimo_usuario = nome_usuario
   
     mostrar_menu()
     comando =  int(input("digite de '0' a '8' para selecionar um comando: "))
@@ -149,46 +164,56 @@ while True:
             visualizar_nomes_u()
             usuario_e = (int(input("digite o numero do usuário afetado: ")))-1
             if usuario_e+1 <= len(nomes_u):
-                if operacao == 1:
-                    print(nomes_u[usuario_e] + ", " + matriculas[usuario_e][:2]+ "*"*((len(list(matriculas[usuario_e])))-2) + ", " + perfis[usuario_e])
-                    editardado = input("qual dado deseja editar? ('nome', 'matrícula' ou 'perfil')")
-                    if editardado == "nome":
-                        registrar_operacao("editar dados: (mudança de nome)", usuario_e, nome_usuario)
-                        nome_novo = input("digite o nome novo do usuário: ")
-                        nomes_u[usuario_e] = nome_novo
+                if senha_acesso("matricula", nomes_u[usuario_e], usuario_e):       #requer a matricula para mudar qualquer dado do usuário
+                    if operacao == 1:
+                        registrar_acesso(nome_usuario, "sucesso", "normal")
+                        print(nomes_u[usuario_e] + ", " + matriculas[usuario_e][:2]+ "*"*((len(list(matriculas[usuario_e])))-2) + ", " + perfis[usuario_e])
+                        editardado = input("qual dado deseja editar? ('nome', 'matrícula' ou 'perfil')")
+                        if editardado == "nome":
+                            registrar_operacao("editar dados: (mudança de nome)", usuario_e, nome_usuario)
+                            nome_novo = input("digite o nome novo do usuário: ")
+                            nomes_u[usuario_e] = nome_novo
+                            atualizar_registrodus()
+                        elif editardado == "matricula":
+                            registrar_operacao("editar dados: (mudança de matricula)", usuario_e, nome_usuario)
+                            matricula_nova = input("digite a nova matricula: ")
+                            matriculas[usuario_e] = matricula_nova
+                            atualizar_registrodus()
+                        elif editardado == "perfil":
+                            registrar_operacao("editar dados: (mudança de perfil)", usuario_e, nome_usuario)
+                            perfil_novo = input("digite o perfil novo do usuário: ")
+                            perfis[usuario_e] = perfil_novo
+                            atualizar_registrodus()
+                    elif operacao == 2:
+                        registrar_acesso(nome_usuario, "sucesso", "normal")
+                        registrar_operacao("excluir usuário", usuario_e, nome_usuario)
+                        nomes_u.pop(usuario_e)
+                        matriculas.pop(usuario_e)
+                        perfis.pop(usuario_e)
                         atualizar_registrodus()
-                    elif editardado == "matricula":
-                        registrar_operacao("editar dados: (mudança de matricula)", usuario_e, nome_usuario)
-                        matricula_nova = input("digite a nova matricula: ")
-                        matriculas[usuario_e] = matricula_nova
-                        atualizar_registrodus()
-                    elif editardado == "perfil":
-                        registrar_operacao("editar dados: (mudança de perfil)", usuario_e, nome_usuario)
-                        perfil_novo = input("digite o perfil novo do usuário: ")
-                        perfis[usuario_e] = perfil_novo
-                        atualizar_registrodus()
-                elif operacao == 2:
-                    registrar_operacao("excluir usuário", usuario_e, nome_usuario)
-                    nomes_u.pop(usuario_e)
-                    matriculas.pop(usuario_e)
-                    perfis.pop(usuario_e)
-                    atualizar_registrodus()
-                elif operacao == 3:
-                    #TODO: visualizar matricula do usuario (pedindo alguma senha ou coisa do tipo para permitir)
-                    print()
-                else:
-                    print("operação inválida.")
-                    break
+                    elif operacao == 3:
+                        registrar_acesso(nome_usuario, "sucesso", "normal")
+                        #TODO: visualizar matricula do usuario (pedindo alguma senha ou coisa do tipo para permitir)
+                        print()
+                    else:
+                        if contador_falhas >= 3:            #VALORES DECIDIDOS ARBITRARIAMENTE
+                            contador_falhas =+1
+                            registrar_acesso(nome_usuario, "falha", "suspeito")
+                        else:
+                            contador_falhas =+1
+                            registrar_acesso(nome_usuario, "falha", "normal")                                                    
+                        print("operação inválida.")
+                        break
+                elif not senha_acesso("matricula", nomes_u[usuario_e], usuario_e):
+                    registrar_acesso(nome_usuario, "falha", "suspeito")     #falhas repetidas da matricula == acesso suspeito registrado
+                    contador_falhas =+1
             elif usuario_e < 0 or usuario_e+1 > len(nomes_u):
                 print("usuário inválido.") 
                 break           
-                    
-        else:
-            print("ação inválida.")
-            break
 
     elif comando == 3:
         #Registrar usuário
+        registrar_acesso(nome_usuario, "sucesso", "normal")
         registrar_usuario()
         registrar_operacao("registro de usuário", (len(nomes_u)-1), nome_usuario)
 
