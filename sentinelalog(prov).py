@@ -33,11 +33,15 @@ def horariopermitido(perfil):           #utilizada no registrodus.txt
     return horariopermitido
 def ran_horariopermitido(perfil):        #checagem de horário de uso para permissao de uso
     if perfil == "estudante":
-        return range(7, 19)
+        listahora = range(7, 19)
+        return listahora
     elif perfil == "professor":
-        return range(7, 21)
+        listahora = range(7, 21)
+        return listahora
     elif perfil == "administrador":
-        return range(7, 23)
+        listahora = range(7,23)
+        return listahora
+    return ()
 maquinasda = []             #não implementado ainda. registro externo necessário. pode ser utilizado para o comando 5
 contador_falhas = 0         #contador de falhas associado a um usuário específico
 ultimo_usuario = ""         #variavel para manutenção //// usuário bloqueado não tem registro externo, porém é possível fazer ultimo_usuario = lista[-1]; sendo lista = [registroda] 
@@ -58,7 +62,7 @@ def registrar_usuario():    #'registrodus.txt' registra as matriculas ja censura
           matriculas.append(matricula)
           registro_externo("ext_matriculas.txt", matricula)
                         
-          registrodus = open("registrodus.txt", "a")
+          registrodus = open("registrodus.txt", "a", encoding="utf8")
           registrodus.write(nome + ", " + matricula[:2]+ "*"*((len(list(matricula)))-2) + ", " + perfil + ", " + horariopermitido(perfil) + " \n")
           registrodus.close() #esse registro cria um arquivo .txt com a matricula censurada
           break
@@ -67,7 +71,7 @@ def registrar_usuario():    #'registrodus.txt' registra as matriculas ja censura
          print("perfil inválido.")
 
 def atualizar_registrodus():     #'regstrodus.txt' registra as matriculas ja censuradas
-    registrodus = open("registrodus.txt", "w")
+    registrodus = open("registrodus.txt", "w", encoding="utf8")
     for i in range(len(nomes_u)):
         registrodus.write(nomes_u[i] + ", " + matriculas[i][:2]+ "*"*((len(list(matriculas[i])))-2) + ", " + perfis[i] + ", " + horariopermitido(perfis[i]) + " \n")
     registrodus.close()
@@ -114,13 +118,13 @@ def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina suces
 def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de auditoria
     horario_de_acesso = datetime.now().replace(microsecond=0)
     if i_usuario == "None":
-        registroaud = open("registroaud.txt", "a")
+        registroaud = open("registroaud.txt", "a", encoding="utf8")
         registroaud.write("Ação: " + str(operacao) + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso))
         registroaud.close()       
     else:
         for i in range(len(nomes_u)):
             if i == i_usuario:
-                registroaud = open("registroaud.txt", "a")
+                registroaud = open("registroaud.txt", "a", encoding="utf8")
                 registroaud.write("Ação: " + str(operacao) + "| Usuário afetado: " + nomes_u[i_usuario] + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso) + " \n")
                 registroaud.close()
 
@@ -138,8 +142,12 @@ def mostrar_menu():
     print("0. Sair")
 
 def registro_externo(registro_ext: str, armazenavel):        #'ext_nomes_u.txt'; 'ext_matriculas.txt'; 'ext_perfis.txt'; "ext_cont_falhas.txt"; "ext_usuarios_bloqueados.txt";
-    registroexterno = open(registro_ext, "a")
-    registroexterno.write(armazenavel + ",")       #"," será o parâmetro do 'split()'
+    if os.path.isfile(registro_ext):
+        registroexterno = open(registro_ext, "a", encoding="utf8")
+        registroexterno.write("," + armazenavel)       #"," será o parâmetro do 'split()'
+    else:
+        registroexterno = open(registro_ext, "a", encoding="utf8")
+        registroexterno.write(armazenavel)
     registroexterno.close
 
 def externo_interno(registro_ext: str):
@@ -323,3 +331,4 @@ while True:
 
     else:
         print("Comando inválido. Tente novamente")
+        
