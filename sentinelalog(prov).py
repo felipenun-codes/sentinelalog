@@ -25,11 +25,11 @@ matriculas = []
 perfis = []
 def horariopermitido(perfil):           #utilizada no registrodus.txt
     if perfil == "estudante":
-        horariopermitido = "7h às 18h" 
+        horariopermitido = "7h as 18h" 
     elif perfil == "professor":
-        horariopermitido = "7h às 20h"
+        horariopermitido = "7h as 20h"
     elif perfil == "administrador":
-        horariopermitido = "7h às 22h"
+        horariopermitido = "7h as 22h"
     return horariopermitido
 def ran_horariopermitido(perfil):        #checagem de horário de uso para permissao de uso
     if perfil == "estudante":
@@ -40,7 +40,7 @@ def ran_horariopermitido(perfil):        #checagem de horário de uso para permi
         return range(7, 23)
 maquinasda = []             #não implementado ainda. registro externo necessário. pode ser utilizado para o comando 5
 contador_falhas = 0         #contador de falhas associado a um usuário específico
-ultimo_usuario = ""         #variavel para manutenção //// usuário bloqueado não tem registro externo, porém é possível fazer ultimo_usuario = lista[-1]; sendo lista = [acessos]
+ultimo_usuario = ""         #variavel para manutenção //// usuário bloqueado não tem registro externo, porém é possível fazer ultimo_usuario = lista[-1]; sendo lista = [registroda] 
 hora_do_bloqueio = []        # utilizado para travar o sistema  
 dia_do_bloqueio = []          # dia  hora de bloqueio não froma armaenadas externamente ainda.
 usuarios_bloqueados = []
@@ -88,7 +88,7 @@ def visualizar_registro_x(registro_txt : str):
 def registrar_acesso(nome_usuario, resultado: str, risco: str):
     horario_de_acesso = datetime.now().replace(microsecond=0)
     nome = nome_usuario
-    maquinadeacesso = input("digite a maquina de acesso do usuário (ex: 'pessoal', 'lab01'): ") 
+    maquinadeacesso = input("digite a maquina de acesso do usuário (ex: pessoal, lab01...): ") 
     maquinasda.append(maquinadeacesso) 
     registroda = open("registroda.txt", "a")
     registroda.write(nome + ", " + str(horario_de_acesso) + ", " + maquinadeacesso + ", Resultado: " + resultado + " | Risco: " + risco + " \n")
@@ -147,7 +147,7 @@ def externo_interno(registro_ext: str, lista):
     lista = (registro_ext.read()).split(",")             #não sei se preciso retornar essa lista. ela já existe externamente e já está recebendo dados do arquivo, então acho que não?
     registro_ext.close()
 
-def contar_falhas(contador_falhas):
+def contar_falhas():
     contador_falhas +=1
     registro_externo("ext_cont_falhas.txt", "1")      #sim, eu sei que '1' será escrito e lido como string, as falhas serão readicionadas com (len( .txt).split(","))
 
@@ -235,7 +235,7 @@ while True:
                 else:
                     print("senha incorreta. ")
                     registrar_acesso(nome_usuario, "falha", "suspeito")
-                    contar_falhas(contador_falhas)
+                    contar_falhas()
             elif usuario_e+1 <= len(nomes_u):
                 if senha_acesso("matricula", nomes_u[usuario_e], usuario_e):       #requer a matricula para mudar qualquer dado do usuário
                     if operacao == 1:
@@ -266,20 +266,20 @@ while True:
                         atualizar_registrodus()
                     else:
                         if contador_falhas >= 3:            #VALORES DECIDIDOS ARBITRARIAMENTE
-                           contar_falhas(contador_falhas)
+                           contar_falhas()
                            registrar_acesso(nome_usuario, "falha", "suspeito")
                         else:
-                            contar_falhas(contador_falhas)
+                            contar_falhas()
                             registrar_acesso(nome_usuario, "falha", "normal")                                                    
                             print("operação inválida.")
                             break
                 else:
                     registrar_acesso(nome_usuario, "falha", "suspeito")     #falhas repetidas da matricula == acesso suspeito registrado
-                    contar_falhas(contador_falhas)
+                    contar_falhas()
             else:
                 print("usuário inválido.") 
                 registrar_acesso(nome_usuario, "falha", "normal")
-                contar_falhas(contador_falhas)
+                contar_falhas
                 break           
 
     elif comando == 3:
