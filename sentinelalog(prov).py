@@ -16,7 +16,7 @@
 #registrodus = registro de usuários
 #registroaud = registro de ações
 
-#import os
+import os
 #os.system("cls")
 from datetime import datetime
 
@@ -50,10 +50,13 @@ def registrar_usuario():    #'registrodus.txt' registra as matriculas ja censura
       perfil = input("digite o perfil do usuário a ser registrado ('estudante', 'professor' ou 'administrador'): ").lower()
       if perfil == "estudante" or perfil == "professor" or perfil == "administrador":
           perfis.append(perfil)
+          registro_externo("ext_perfis.txt", perfil)
           nome = input("digite o nome do usuário: ")
           nomes_u.append (nome)
+          registro_externo("ext_nomes_u.txt", nome)
           matricula = input("digite a matrícula do usuário: ")
           matriculas.append(matricula)
+          registro_externo("ext_matriculas.txt", matricula)
                         
           registrodus = open("registrodus.txt", "a")
           registrodus.write(nome + ", " + matricula[:2]+ "*"*((len(list(matricula)))-2) + ", " + perfil + ", " + horariopermitido(perfil) + " \n")
@@ -115,12 +118,11 @@ def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de audi
         registroaud.write("Ação: " + str(operacao) + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso))
         registroaud.close()       
     else:
-        for i in range(nomes_u):
+        for i in range(len(nomes_u)):
             if i == i_usuario:
                 registroaud = open("registroaud.txt", "a")
                 registroaud.write("Ação: " + str(operacao) + "| Usuário afetado: " + nomes_u[i_usuario] + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso) + " \n")
                 registroaud.close()
-
 
 def mostrar_menu():
     print("=== SentinelaLog ===")
@@ -135,12 +137,35 @@ def mostrar_menu():
     print("9. Perguntar à IA (em breve)")
     print("0. Sair")
 
+def registro_externo(registro_ext: str, armazenavel):        #'ext_nomes_u.txt'; 'ext_matriculas.txt'; 'ext_perfis.txt'; "ext_cont_falhas.txt"; "ext_usuarios_bloqueados.txt";
+    registroexterno = open(registro_ext, "a")
+    registroexterno.write(armazenavel + ",")       #"," será o parâmetro do 'split()'
+    registroexterno.close
+
+def externo_interno(registro_ext: str, lista):
+    registro_ext = open("ext_nomes_u.txt", "r", encoding="utf8")
+    lista = (registro_ext.read()).split(",")             #não sei se preciso retornar essa lista. ela já existe externamente e já está recebendo dados do arquivo, então acho que não?
+    registro_ext.close()
+
+def contar_falhas():
+    contador_falhas +=1
+    registro_externo("ext_cont_falhas.txt", "1")      #sim, eu sei que '1' será escrito e lido como string, as falhas serão readicionadas com (len( .txt).split(","))
+
+if os.path.isfile("ext_nomes_u.txt"):
+    externo_interno("ext_nomes_u.txt", nomes_u)
+    externo_interno("ext_matriculas.txt", matriculas)
+    externo_interno("ext_perfis.txt", perfis)
+    if os.path.isfile("ext_cont_falhas.txt"):
+        externo_interno("ext_cont_falhas.txt", contador_falhas)
+    if os.path.isfile("ext_usuarios_bloqueados.txt"):
+        externo_interno("ext_usuarios_bloqueados.txt", usuarios_bloqueados)
+
 
 #MENU:
 while True:
     print("qual usuário está tentando selecionar o programa? ")
     visualizar_nomes_u()
-    usuarioacesso = int(input("digite o número do usuário que deseja acessar o pro grama (ou digite 0, caso deseje registrar um novo usuário): "))
+    usuarioacesso = int(input("digite o número do usuário que deseja acessar o programa (ou digite 0, caso deseje registrar um novo usuário): "))
 
     if usuarioacesso <= (len(nomes_u)):   #'nome_usuario' será o registrado como responsável pela ação x no registro de auditoria
         if usuarioacesso == 0:
@@ -173,6 +198,8 @@ while True:
 
     if nome_usuario != ultimo_usuario:
         contador_falhas = 0
+        if os.path.isfile("ext_cont_falhas.txt"):          #deleta arquivo de armazenamento de falhas
+            os.remove("ext_cont_falhas.txt")
         ultimo_usuario = nome_usuario
     elif nome_usuario == ultimo_usuario and contador_falhas > 5:        #esse método deixa uma brecha na identificação de falhas. um sujeito mal intencionado pode mudar usuários para resetar o contador_falhas.
         print("SentinelaLog identificou várias tentativas de acesso sucessivas que resultaram em falha. Acesso bloqueado.")
@@ -180,6 +207,7 @@ while True:
         usuarios_bloqueados.append(nome_usuario)
         hora_do_bloqueio.append(datetime.now().hour)
         dia_do_bloqueio.append(datetime.now().day)
+        registro_externo("ext_usuarios_bloqueados.txt",nome_usuario)
         break
     ultimo_usuario = nome_usuario
   
@@ -188,6 +216,7 @@ while True:
 
     if comando == 1:
         #esse metodo não mostra as matriculas
+        registrar_acesso(nome_usuario, "sucesso","normal")
         visualizar_registro_x("registrodus.txt")
         registrar_operacao("vizualizar registro de usuários", "None", nome_usuario)
 
@@ -206,7 +235,7 @@ while True:
                 else:
                     print("senha incorreta. ")
                     registrar_acesso(nome_usuario, "falha", "suspeito")
-                    contador_falhas =+1
+                    contar_falhas()
             elif usuario_e+1 <= len(nomes_u):
                 if senha_acesso("matricula", nomes_u[usuario_e], usuario_e):       #requer a matricula para mudar qualquer dado do usuário
                     if operacao == 1:
@@ -237,18 +266,20 @@ while True:
                         atualizar_registrodus()
                     else:
                         if contador_falhas >= 3:            #VALORES DECIDIDOS ARBITRARIAMENTE
-                           contador_falhas =+1
+                           contar_falhas()
                            registrar_acesso(nome_usuario, "falha", "suspeito")
                         else:
-                            contador_falhas =+1
+                            contar_falhas()
                             registrar_acesso(nome_usuario, "falha", "normal")                                                    
                             print("operação inválida.")
                             break
                 else:
                     registrar_acesso(nome_usuario, "falha", "suspeito")     #falhas repetidas da matricula == acesso suspeito registrado
-                    contador_falhas =+1
+                    contar_falhas()
             else:
                 print("usuário inválido.") 
+                registrar_acesso(nome_usuario, "falha", "normal")
+                contar_falhas
                 break           
 
     elif comando == 3:
