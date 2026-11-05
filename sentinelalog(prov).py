@@ -142,23 +142,25 @@ def registro_externo(registro_ext: str, armazenavel):        #'ext_nomes_u.txt';
     registroexterno.write(armazenavel + ",")       #"," será o parâmetro do 'split()'
     registroexterno.close
 
-def externo_interno(registro_ext: str, lista):
+def externo_interno(registro_ext: str):
     registro_ext = open("ext_nomes_u.txt", "r", encoding="utf8")
     lista = (registro_ext.read()).split(",")             #não sei se preciso retornar essa lista. ela já existe externamente e já está recebendo dados do arquivo, então acho que não?
     registro_ext.close()
+    return lista
 
 def contar_falhas():
     contador_falhas +=1
     registro_externo("ext_cont_falhas.txt", "1")      #sim, eu sei que '1' será escrito e lido como string, as falhas serão readicionadas com (len( .txt).split(","))
 
 if os.path.isfile("ext_nomes_u.txt"):
-    externo_interno("ext_nomes_u.txt", nomes_u)
-    externo_interno("ext_matriculas.txt", matriculas)
-    externo_interno("ext_perfis.txt", perfis)
+    nomes_u = externo_interno("ext_nomes_u.txt")
+    matriculas = externo_interno("ext_matriculas.txt")
+    perfis = externo_interno("ext_perfis.txt")
     if os.path.isfile("ext_cont_falhas.txt"):
-        externo_interno("ext_cont_falhas.txt", contador_falhas)
+        contador_falhas = externo_interno("ext_cont_falhas.txt")
     if os.path.isfile("ext_usuarios_bloqueados.txt"):
-        externo_interno("ext_usuarios_bloqueados.txt", usuarios_bloqueados)
+        usuarios_bloqueados = externo_interno("ext_usuarios_bloqueados.txt")
+    nomes_u = externo_interno("ext_nomes_u.txt")
 
 
 #MENU:
