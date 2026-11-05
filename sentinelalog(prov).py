@@ -118,7 +118,7 @@ def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de audi
         for i in range(nomes_u):
             if i == i_usuario:
                 registroaud = open("registroaud.txt", "a")
-                registroaud.write("Ação: " + str(operacao) + "| Usuário afetado: " + nomes_u[i_usuario] + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso))
+                registroaud.write("Ação: " + str(operacao) + "| Usuário afetado: " + nomes_u[i_usuario] + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso) + " \n")
                 registroaud.close()
 
 
@@ -199,8 +199,8 @@ while True:
             visualizar_nomes_u()
             usuario_e = (int(input("digite o numero do usuário afetado: ")))-1         
             if operacao == 3:
-                if senha_acesso("senha", "administrador"):
-                    print(f"nomes_u[usuario_e], Matrícula: {matriculas[usuario_e]}")
+                if senha_acesso("senha", "administrador", usuario_e):
+                    print(f"{nomes_u[usuario_e]}, Matrícula: {matriculas[usuario_e]}")
                     registrar_acesso(nome_usuario, "sucesso", "normal")
                     registrar_operacao("visualizar matrícula", usuario_e, nome_usuario)
                 else:
