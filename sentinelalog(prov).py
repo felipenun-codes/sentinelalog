@@ -170,6 +170,44 @@ if os.path.isfile("ext_nomes_u.txt"):
         usuarios_bloqueados = externo_interno("ext_usuarios_bloqueados.txt")
     nomes_u = externo_interno("ext_nomes_u.txt")
 
+def ler_maquinas_bloqueadas():       #recebe o perfil do usuario, a hora de acesso, a maquina de origem e o resultado do acesso, devolvendo o nivel de risco (normal,suspeito ou critico) e a lista de motivos.
+    if not os.path.exists("maquinas_bloqueadas.txt"):     #se nao existir o arquivo, retorna uma lista vazia
+        return []
+    maquinas = []            
+    with open("maquinas_bloqueadas.txt", "r", encoding="utf-8") as arquivo:
+        for linha in arquivo:
+            linha = linha.strip().lower()          #remove os espaços em branco e coloca em minusculo
+            if linha:                              #deixa claro que não adiciona linhas vazias
+                maquinas.append(linha)
+    return maquinas    
+                         #retorna a lista de máquinas bloqueadas
+
+def classificar_acesso(perfil,hora,maquina,resultado):        #recebe o perfil do usuario, a hora de acesso, a maquina de origem e o resultado do acesso, devolvendo o nivel de risco (normal,suspeito ou crítico) e a lista de motivos.
+    pontos = 0
+    motivos = []
+    resultado = resultado.lower()
+    maquina = maquina.lower()
+    
+    if resultado == "falha":
+        pontos += 1
+        motivos.append("Falha de acesso")
+    if maquina in ler_maquinas_bloqueadas():
+        pontos += 3
+        motivos.append("Máquina bloqueada")
+    if hora in range(1, 6):
+        pontos += 4
+        motivos.append("Acesso de madrugada (1h-6h)")
+    elif hora not in ran_horariopermitido(perfil):
+        pontos += 2
+        motivos.append("Acesso fora do horário permitido")
+    if pontos <=2:
+        nivel_risco = "normal"
+    elif pontos >= 3 and pontos <= 6:
+        nivel_risco = "suspeito"
+    else:
+        nivel_risco = "crítico"
+    return nivel_risco, motivos
+
 
 #MENU:
 while True:
