@@ -176,28 +176,27 @@ def ler_maquinas_bloqueadas():       #recebe o perfil do usuario, a hora de aces
     maquinas = []            
     with open("maquinas_bloqueadas.txt", "r", encoding="utf-8") as arquivo:
         for linha in arquivo:
-            linha = linha.strip().lower()          #remove os espaços em branco e coloca em minusculo
-            if linha:                              #deixa claro que não adiciona linhas vazias
+            linha = linha.strip().lower()          
+            if linha:                              #deixar claro que não adiciona linhas vazias
                 maquinas.append(linha)
-    return maquinas    
-                         #retorna a lista de máquinas bloqueadas
+    return maquinas                                     #retorna a lista de máquinas bloqueadas
 
 def classificar_acesso(perfil,hora,maquina,resultado):        #recebe o perfil do usuario, a hora de acesso, a maquina de origem e o resultado do acesso, devolvendo o nivel de risco (normal,suspeito ou crítico) e a lista de motivos.
     pontos = 0
     motivos = []
     resultado = resultado.lower()
     maquina = maquina.lower()
-    
-    if resultado == "falha":
+      
+    if resultado == "falha":                                 #se o resultado do acesso for falha, adiciona 1 ponto de risco e registra o motivo
         pontos += 1
         motivos.append("Falha de acesso")
-    if maquina in ler_maquinas_bloqueadas():
+    if maquina in ler_maquinas_bloqueadas():                 #se a máquina estiver na lista de máquinas bloqueadas, adiciona 3 pontos de risco e registra o motivo
         pontos += 3
         motivos.append("Máquina bloqueada")
-    if hora in range(1, 6):
+    if hora in range(1, 6):                                  #se a hora estiver entre 1h e 6h ,(que no caso seria a madrugada) adiciona 4 pontos de risco e registra o motivo
         pontos += 4
         motivos.append("Acesso de madrugada (1h-6h)")
-    elif hora not in ran_horariopermitido(perfil):
+    elif hora not in ran_horariopermitido(perfil):            #se a hora estiver fora do horário permitido para o perfil do usuário, adiciona 2 pontos de risco e registra o motivo
         pontos += 2
         motivos.append("Acesso fora do horário permitido")
     if pontos <=2:
@@ -208,6 +207,31 @@ def classificar_acesso(perfil,hora,maquina,resultado):        #recebe o perfil d
         nivel_risco = "crítico"
     return nivel_risco, motivos
 
+def analisar_acessos_registrados():                   
+    if not os.path.exists("registroda.txt"):               #será analisado se o arquivo de registro de acessos existe, caso não exista, será exibida a mensagem "Nenhum acesso registrado." e a função será encerrada.
+        print("Nenhum acesso registrado.")
+        return
+    with open("registroda.txt", "r", encoding="utf-8") as arquivo:           #o arquivo de registro de acessos será aberto em modo de leitura e cada linha será lida e processada.
+        for linha in arquivo:
+            linha = linha.strip()
+            if not linha:                                     
+                continue                                          #se não houver conteúdo na linha, o loop continuará para a próxima linha.
+            parte = linha.split(", ")                          #a linha será dividida em partes usando a vírgula como separador e armazenada na lista "linha".
+            if len(parte) < 4:                                      #se a linha não tiver pelo menos 4 partes, ela será ignorada e o loop continuará para a próxima linha.
+                continue
+            try:
+                str_horario_acesso = parte[1].strip()               #string do horário de acesso
+                data_acesso = datetime.strptime(str_horario_acesso, "%Y-%m-%d %H:%M:%S")
+                hora_acesso = data_acesso.hour
+                print(hora_acesso)
+            except ValueError:
+                print(f"Formato de data inválido na linha: {linha}")
+                continue
+            str_nome_acesso = parte[0]
+            str_maquina_acesso = parte[2]
+            pedacos = parte[3].split(" | ")
+            primeiro = pedacos[0]
+            valor = primeiro.split(": ")[1]                       
 
 #MENU:
 while True:
