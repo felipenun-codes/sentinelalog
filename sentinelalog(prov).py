@@ -264,9 +264,21 @@ def avisar_maquina_bloqueada(maquina):
 
 
 def detectar_maquinas_compartilhadas(lista_fichas):
+    usuario_por_maquina = {}
     for ficha in lista_fichas:
-        print(f"Usuário: {ficha["nome"]}, Máquina: {ficha["maquina"]}, Resultado: {ficha["resultado"]}, Risco: {ficha["risco"]}")
-    detectar_maquinas_compartilhadas(analisar_acessos_registrados())
+        print(f"Usuário: {ficha['nome']}, Máquina: {ficha['maquina']}, Resultado: {ficha['resultado']}, Risco: {ficha['risco']}")
+        maquina_ficha = ficha['maquina']
+        nome_ficha = ficha['nome']
+        if maquina_ficha not in usuario_por_maquina:
+            usuario_por_maquina[maquina_ficha] = []
+            if nome_ficha not in usuario_por_maquina[maquina_ficha]:
+                usuario_por_maquina[maquina_ficha].append(nome_ficha)
+
+
+
+detectar_maquinas_compartilhadas(analisar_acessos_registrados())
+
+
 
 
 
