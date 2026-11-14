@@ -211,22 +211,21 @@ def classificar_acesso(perfil,hora,maquina,resultado):        #recebe o perfil d
     else:
         nivel_risco = "crítico"
     return nivel_risco, motivos
-
-def analisar_acessos_registrados():                   
-    if not os.path.exists("registroda.txt"):               #será analisado se o arquivo de registro de acessos existe, caso não exista, será exibida a mensagem "Nenhum acesso registrado." e a função será encerrada.
+def analisar_acessos_registrados():
+    if not os.path.exists("registroda.txt"):               # se o arquivo de acessos não existe, avisa e devolve uma lista vazia
         print("Nenhum acesso registrado.")
-        return
+        return []
     acessos = []
-    with open("registroda.txt", "r", encoding="utf-8") as arquivo:           #o arquivo de registro de acessos será aberto em modo de leitura e cada linha será lida e processada.
+    with open("registroda.txt", "r", encoding="utf-8") as arquivo:    # abre o arquivo em modo de leitura e processa cada linha
         for linha in arquivo:
             linha = linha.strip()
-            if not linha:                                     
-                continue                                        #se não houver conteúdo na linha, o loop continuará para a próxima linha.
-            parte = linha.split(", ")                          #a linha será dividida em partes usando a vírgula como separador e armazenada na lista "linha".
-            if len(parte) < 4:                                      #se a linha não tiver pelo menos 4 partes, ela será ignorada e o loop continuará para a próxima linha.
+            if not linha:                                  # linha vazia: passa para a próxima
+                continue
+            parte = linha.split(", ")                      # divide a linha em partes, usando ", " como separador, e guarda na lista "parte"
+            if len(parte) < 4:                             # linha com menos de 4 partes é ignorada
                 continue
             try:
-                str_horario_acesso = parte[1].strip()               #string do horário de acesso
+                str_horario_acesso = parte[1].strip()      # texto com a data e a hora do acesso
                 data_acesso = datetime.strptime(str_horario_acesso, "%Y-%m-%d %H:%M:%S")
                 hora_acesso = data_acesso.hour
             except ValueError:
@@ -235,11 +234,21 @@ def analisar_acessos_registrados():
             str_nome_acesso = parte[0]
             str_maquina_acesso = parte[2]
             pedacos = parte[3].split(" | ")
-            primeiro = pedacos[0]
-            valor = primeiro.split(": ")[1]   
-            acessos.append(str_nome_acesso)
+            try:
+                primeiro = pedacos[0]
+                valor = primeiro.split(": ")[1]
+                risco = pedacos[1].split(": ")[1]
+            except IndexError:
+                print(f"Formato de registro inválido na linha {linha}.")
+                continue
+            acesso = {"nome": str_nome_acesso,
+                      "hora": hora_acesso,
+                      "maquina": str_maquina_acesso,
+                      "resultado": valor,
+                      "risco": risco}
+            acessos.append(acesso)
     return acessos
-           
+            
 
 def mostrar_classificacao_acessos(nivel, motivos):
     print("Nível: ", nivel.upper())
@@ -252,7 +261,13 @@ def mostrar_classificacao_acessos(nivel, motivos):
 def avisar_maquina_bloqueada(maquina):
     if maquina_esta_bloqueada(maquina):
         print(f"ALERTA: A máquina '{maquina}' está bloqueada. O acesso a partir desta máquina é considerado de alto risco.")
-print(analisar_acessos_registrados())
+
+
+def detectar_maquinas_compartilhadas(lista_fichas):
+    for ficha in lista_fichas:
+        print(f"Usuário: {ficha["nome"]}, Máquina: {ficha["maquina"]}, Resultado: {ficha["resultado"]}, Risco: {ficha["risco"]}")
+    detectar_maquinas_compartilhadas(analisar_acessos_registrados())
+
 
 
 
