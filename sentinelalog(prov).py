@@ -100,16 +100,17 @@ def registrar_acesso(nome_usuario, resultado: str, risco: str):
 
 
 def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina sucesso ou falha do acesso
-    senha = input(f"digite a {senha_a} de {user_permitido}: ")
     if user_permitido == nomes_u[i_usuario] and senha_a == "matricula":      #matricula como senha; utilizada para 'Gerenciar usuário'
         for i in range (4):
+            senha = input(f"digite a {senha_a} de {user_permitido}: ")
             if senha == matriculas[i_usuario] :
                 return True
             else:
                 print(f"matricula errada. tente novamente [{3-i} tentativas restantes] ")
-                if 3 - i < 1:
-                    return False   
+        return False   
+        
     elif user_permitido == "administrador":
+        senha = input(f"digite a {senha_a} de {user_permitido}: ")
         if senha != "senhadeadministrador":        #senha obviamente provisoria
             return False
         elif senha == "senhadeadministrador":       #senha novamente provisoria
@@ -211,6 +212,7 @@ def classificar_acesso(perfil,hora,maquina,resultado):        #recebe o perfil d
     else:
         nivel_risco = "crítico"
     return nivel_risco, motivos
+
 def analisar_acessos_registrados():
     if not os.path.exists("registroda.txt"):               # se o arquivo de acessos não existe, avisa e devolve uma lista vazia
         print("Nenhum acesso registrado.")
