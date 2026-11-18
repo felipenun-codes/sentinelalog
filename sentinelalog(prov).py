@@ -298,12 +298,41 @@ def gerar_relatorio_seguranca(lista_fichas):
 
 gerar_relatorio_seguranca(analisar_acessos_registrados())
 
+acessos_registrados = []
+acessos_falhados = []
+def relatorio_seguranca(lista_fichas):
+    palavras = []
+    usuario_negados = []
+    total_acessos = len(lista_fichas)
+    print("Total de acessos:", total_acessos)
+    with open("registroda.txt", "r", encoding="utf-8") as arquivo:
+        for linha in arquivo:
+            palavras = (linha.strip().lower().split())
+            for i in palavras:
+                    if i == "sucesso":
+                        acessos_permitidos = open("acessos_permitido.txt", "a", encoding="utf-8")
+                        acessos_permitidos.write("Nome:" + palavras[0] + "Máquina:" + palavras[3] + "Horário:" + palavras[2] + "\n")
+                        acessos_permitidos.close()
+                    elif i == "negado":
+                        usuario = palavras[0].replace(",","")
+                        usuario_negados.append(usuario)
+                        acessos_negados = open("acessos_negados.txt", "a", encoding="utf-8")
+                        acessos_negados.write("Nome:" + palavras[0] + "Máquina:" + palavras[3] + "Horário:" + palavras[2] + "\n")
+                        acessos_negados.close()
+        verificados = []
+        ranking = []
+        for usuario in usuario_negados:
+            if usuario not in verificados:
+                verificados.append(usuario)
+                qntd = usuario_negados.count(usuario)
+                ranking.append([qntd, usuario])
+        ranking.sort()
+        ranking.reverse()
 
-
-
-
-
-
+        arquivo.ranking = open("ranking_negados", "a", encoding="utf-8")
+        for i in ranking:
+            arquivo.ranking.write("Usuário:"+ i[1] + "|" + "Acessos negados:" + str(i[0]) + "\n")
+        arquivo.ranking.close()
 
 #MENU:
 while True:
@@ -465,4 +494,14 @@ while True:
 
     else:
         print("Comando inválido. Tente novamente")
+
+
+
         
+            
+
+
+
+
+
+                
