@@ -1,6 +1,5 @@
 # SENTINELA.LOG
 
-
 #O sistema deve permitir adicionar, visualizar, editar e excluir usuários, com informações como:
 #nome, matrícula, perfil (estudante, professor, administrador), horário permitido de acesso (por
 #exemplo, das 7h às 18h) e observações.
@@ -10,7 +9,6 @@
 #Ao listar os usuários, as matrículas não devem aparecer por completo na tela. Mostre apenas
 #parte delas — por exemplo, os dois primeiros caracteres seguidos de asteriscos. Deve existir uma
 #opção específica para revelar uma matrícula.
-
 
 #registroda = registro de acessos
 #registrodus = registro de usuários
@@ -335,6 +333,8 @@ def relatorio_seguranca(lista_fichas):
     if os.path.exists("acessos_negados.txt"):
         os.remove("acessos_negados.txt")
     usuario_negados = []
+    permitidos = 0                                   
+    negados = 0 
     total_acessos = len(lista_fichas)
     print("Total de acessos:", total_acessos)
 
@@ -367,6 +367,55 @@ def relatorio_seguranca(lista_fichas):
     for i in ranking:
         f_rank.write("Usuário:" + i[1] + "|" + "Acessos negados:" + str(i[0]) + "\n")
     f_rank.close()
+
+    # --- horários com mais movimento e acessos de risco ---
+    contagem_horas = [0] * 24          # posição 0 = 0h, posição 1 = 1h, ... posição 23 = 23h
+    suspeitos = 0
+    criticos = 0
+
+    for ficha in lista_fichas:
+        hora = ficha[1]
+        risco = ficha[4].lower()
+        contagem_horas[hora] += 1      #soma 1 no contador daquela hora
+        if risco == "suspeito":
+            suspeitos += 1
+        elif risco == "crítico" or risco == "critico":
+            criticos += 1
+
+    maior = max(contagem_horas)       
+
+    #aqui guilhermin do brawls stars vai implementar/chamar uma estrutura que permita somente alguém autorizado a visualizar esse relatório de segurança
+     
+    print("\nAcessos permitidos:", permitidos)
+    print("Acessos negados:", negados)
+
+    print("\nUsuário(s) com mais falhas:")
+    if len(ranking) == 0:
+        print("Nenhum usuário apresentou falhas.")
+    else:
+        maior_falhas = ranking[0][0]           # o ranking está em ordem decrescente, então o primeiro é o maior
+        for i in ranking:
+            if i[0] == maior_falhas:           # se houver empate, mostra todos
+                print(f"- {i[1]}: {i[0]} falha(s)") 
+
+    print("\nHorário(s) com mais movimento:")
+    for h in range(24):
+        if contagem_horas[h] == maior:     
+            print(f"- {h}h às {h+1}h:com {maior} acesso(s), sendo o horário de maior acesso")
+    print("\nAcessos suspeitos:", suspeitos)
+    print("Acessos críticos:", criticos)
+
+    f_horarios = open("horarios_movimento.txt", "w", encoding="utf-8")
+    f_horarios.write("Acessos por horário:\n")
+    for h in range(24):
+        if contagem_horas[h] > 0:
+            f_horarios.write(str(h) + "h às " + str(h+1) + "h: " + str(contagem_horas[h]) + " acesso(s)\n")
+
+    f_horarios.write("\nHorário(s) com mais movimento:\n")
+    for h in range(24):
+        if contagem_horas[h] == maior:
+            f_horarios.write(str(h) + "h às " + str(h+1) + "h: " + str(maior) + " acesso(s)\n")
+    f_horarios.close()
 
 
 #MENU:
