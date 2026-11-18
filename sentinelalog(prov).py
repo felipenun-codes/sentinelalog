@@ -343,6 +343,7 @@ while True:
             if datetime.now().hour not in (ran_horariopermitido(perfis[i])):
                 print("\nFora do horário de acesso permitido. Acesso negado.\n\n ")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
+                break
                 
 
     if len(usuarios_bloqueados) >= 1:
