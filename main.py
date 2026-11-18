@@ -20,10 +20,10 @@ import os
 #os.system("cls")
 from datetime import datetime
 
-nomes_u =[]       #listas usadas para atualizar e manter o registrodus.txt
+nomes_u =[]      
 matriculas = []
 perfis = []
-def horariopermitido(perfil):           #utilizada no registrodus.txt
+def horariopermitido(perfil):         
     if perfil == "estudante":
         horariopermitido = "7h as 18h" 
     elif perfil == "professor":
@@ -31,24 +31,21 @@ def horariopermitido(perfil):           #utilizada no registrodus.txt
     elif perfil == "administrador":
         horariopermitido = "7h as 22h"
     return horariopermitido
-def ran_horariopermitido(perfil):        #checagem de horário de uso para permissao de uso
-    listahora = []
-    if perfil == "estudante":
-        listahora = range(7, 19)
-        return listahora
+def ran_horariopermitido(perfil):       
+    if perfil == "administrador":
+        return list(range(7,22))
     elif perfil == "professor":
-        listahora = range(7, 21)
-        return listahora
-    elif perfil == "administrador":
-        listahora = range(7,23)
-        return listahora
-    return ()
-maquinasda = []             #não implementado ainda. registro externo necessário. pode ser utilizado para o comando 5
-contador_falhas = 0         #contador de falhas associado a um usuário específico
-ultimo_usuario = ""         #variavel para manutenção //// usuário bloqueado não tem registro externo, porém é possível fazer ultimo_usuario = lista[-1]; sendo lista = [registroda] 
-hora_do_bloqueio = []        # utilizado para travar o sistema  
-dia_do_bloqueio = []          # dia  hora de bloqueio não froma armaenadas externamente ainda.
+        return list(range(7, 20))
+    else:
+        return list(range(7,20))
+
+maquinasda = []            
+contador_falhas = 0       
+ultimo_usuario = ""         
+hora_do_bloqueio = []       
+dia_do_bloqueio = []        
 usuarios_bloqueados = []
+block = False
 
 def registrar_usuario():    #'registrodus.txt' registra as matriculas ja censuradas
     while True:
@@ -130,7 +127,7 @@ def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de audi
     horario_de_acesso = datetime.now().replace(microsecond=0)
     if i_usuario == "None":
         registroaud = open("registroaud.txt", "a", encoding="utf8")
-        registroaud.write("Ação: " + str(operacao) + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso))
+        registroaud.write("Ação: " + str(operacao) + "| Usuário responsável: " + str(r_usuario) + ", " + str(horario_de_acesso) + " \n")
         registroaud.close()       
     else:
         for i in range(len(nomes_u)):
@@ -389,14 +386,14 @@ while True:
         print("\nUsuário invalido.\n\n")
         continue
 
-    for i in range (len(nomes_u)):           #permissão dependendo  horário
+    for i in range (len(nomes_u)):          
         if nome_usuario == nomes_u[i]:
+            print(ran_horariopermitido(perfis[i]))  #PRINT PROVISORIO PARA IDENTIFICAÇÃO DE ERROS
             if datetime.now().hour not in (ran_horariopermitido(perfis[i])):
                 registrar_acesso(nome_usuario, "falha", "suspeito")
                 print("\nFora do horário de acesso permitido. Acesso negado.\n ")
                 block = True
-    
-                
+            break
 
     if len(usuarios_bloqueados) >= 1:
         for i in range (len(usuarios_bloqueados)):
