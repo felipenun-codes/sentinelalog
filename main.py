@@ -95,7 +95,7 @@ def visualizar_registro_x(registro_txt : str):
         print(conteudo)
     else:
         print("[registro vazio]")
-    v_registro = open(registro_txt, "r", encoding="utf8")
+    v_registro = open(registro_txt, "r", encoding="utf-8")
     print(v_registro.read())
     v_registro.close()
 
@@ -104,7 +104,7 @@ def registrar_acesso(nome_usuario, resultado: str, risco: str):
     nome = nome_usuario
     maquinadeacesso = input("Digite a maquina de acesso do usuário (ex: pessoal, lab01...): ") 
     maquinasda.append(maquinadeacesso) 
-    registroda = open("registroda.txt", "a", enconding=)
+    registroda = open("registroda.txt", "a", encoding="utf-8")
     registroda.write(nome + ", " + str(horario_de_acesso) + ", " + maquinadeacesso + ", Resultado: " + resultado + " | Risco: " + risco + " \n")
     registroda.close()
 
