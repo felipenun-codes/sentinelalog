@@ -330,6 +330,7 @@ def relatorio_seguranca(lista_fichas):
             arquivo.ranking.write("Usuário:"+ i[1] + "|" + "Acessos negados:" + str(i[0]) + "\n")
         arquivo.ranking.close()
 
+
 #MENU:
 while True:
     print("Qual usuário está tentando selecionar o programa? ")
@@ -351,9 +352,8 @@ while True:
             if datetime.now().hour not in (ran_horariopermitido(perfis[i])):
                 registrar_acesso(nome_usuario, "falha", "suspeito")
                 print("\nFora do horário de acesso permitido. Acesso negado.\n ")
-                foradohorario = True
-    if foradohorario:
-        break
+                block = True
+    
                 
 
     if len(usuarios_bloqueados) >= 1:
@@ -365,7 +365,9 @@ while True:
             elif nome_usuario == usuarios_bloqueados[i] and datetime.now().hour < (hora_do_bloqueio[i]+2):
                 print("O acesso desse usuário está bloqueado. Tente novamente mais tarde.")
                 registrar_acesso(nome_usuario, "falha", "bloqueado pelo sistema")
-                break
+                block = True
+    if block:
+        break
 
 
     if nome_usuario != ultimo_usuario:
