@@ -86,6 +86,15 @@ def visualizar_nomes_u():
         print("[nenhum usuário registrado]")
 
 def visualizar_registro_x(registro_txt : str):
+    if not os.path.exists(registro_txt):
+        print("[nenhum registro encontrado]")
+        return
+    with open(registro_txt, "r", encoding="utf8") as v_registro:
+        conteudo = v_registro.read()
+    if conteudo:
+        print(conteudo)
+    else:
+        print("[registro vazio]")
     v_registro = open(registro_txt, "r", encoding="utf8")
     print(v_registro.read())
     v_registro.close()
@@ -95,7 +104,7 @@ def registrar_acesso(nome_usuario, resultado: str, risco: str):
     nome = nome_usuario
     maquinadeacesso = input("Digite a maquina de acesso do usuário (ex: pessoal, lab01...): ") 
     maquinasda.append(maquinadeacesso) 
-    registroda = open("registroda.txt", "a")
+    registroda = open("registroda.txt", "a", enconding=)
     registroda.write(nome + ", " + str(horario_de_acesso) + ", " + maquinadeacesso + ", Resultado: " + resultado + " | Risco: " + risco + " \n")
     registroda.close()
 
@@ -320,42 +329,47 @@ def detectar_maquinas_compartilhadas(lista_fichas):
     if not encontrou:
         print("Nenhuma máquina compartilhada foi detectada.")
 
-
-acessos_registrados = []
-acessos_falhados = []
 def relatorio_seguranca(lista_fichas):
-    palavras = []
+    if len(lista_fichas) == 0:                       
+        print("Nenhum acesso registrado ainda. Não há dados para o relatório.")
+        return
+    if os.path.exists("acessos_permitidos.txt"):         #apaga os arquivos antigos para não duplicar os conteúdos
+        os.remove("acessos_permitidos.txt")
+    if os.path.exists("acessos_negados.txt"):
+        os.remove("acessos_negados.txt")
     usuario_negados = []
     total_acessos = len(lista_fichas)
     print("Total de acessos:", total_acessos)
-    with open("registroda.txt", "r", encoding="utf-8") as arquivo:
-        for linha in arquivo:
-            palavras = (linha.strip().lower().split())
-            for i in palavras:
-                    if i == "sucesso":
-                        acessos_permitidos = open("acessos_permitido.txt", "a", encoding="utf-8")
-                        acessos_permitidos.write("Nome:" + palavras[0] + "Máquina:" + palavras[3] + "Horário:" + palavras[2] + "\n")
-                        acessos_permitidos.close()
-                    elif i == "negado":
-                        usuario = palavras[0].replace(",","")
-                        usuario_negados.append(usuario)
-                        acessos_negados = open("acessos_negados.txt", "a", encoding="utf-8")
-                        acessos_negados.write("Nome:" + palavras[0] + "Máquina:" + palavras[3] + "Horário:" + palavras[2] + "\n")
-                        acessos_negados.close()
-        verificados = []
-        ranking = []
-        for usuario in usuario_negados:
-            if usuario not in verificados:
-                verificados.append(usuario)
-                qntd = usuario_negados.count(usuario)
-                ranking.append([qntd, usuario])
-        ranking.sort()
-        ranking.reverse()
 
-        arquivo.ranking = open("ranking_negados", "a", encoding="utf-8")
-        for i in ranking:
-            arquivo.ranking.write("Usuário:"+ i[1] + "|" + "Acessos negados:" + str(i[0]) + "\n")
-        arquivo.ranking.close()
+    for ficha in lista_fichas:                          
+        nome = ficha[0]                                  
+        hora = ficha[1]
+        maquina = ficha[2]
+        resultado = ficha[3]
+        acessos_permitidos = open("acessos_permitidos.txt", "a", encoding="utf-8")
+        acessos_negados = open("acessos_negados.txt", "a", encoding="utf-8")
+        if resultado == "sucesso":                       
+            acessos_permitidos.write("Nome:" + nome + "Máquina:" + maquina + "Horário:" + str(hora) + "\n")
+        elif resultado == "falha":
+            usuario_negados.append(nome)                 
+            acessos_negados.write("Nome:" + nome + "Máquina:" + maquina + "Horário:" + str(hora) + "\n")
+        acessos_negados.close()
+        acessos_permitidos.close()
+
+    verificados = []                                     
+    ranking = []
+    for usuario in usuario_negados:
+        if usuario not in verificados:
+            verificados.append(usuario)
+            qntd = usuario_negados.count(usuario)
+            ranking.append([qntd, usuario])
+    ranking.sort()
+    ranking.reverse()
+
+    f_rank = open("ranking_negados.txt", "w", encoding="utf-8")
+    for i in ranking:
+        f_rank.write("Usuário:" + i[1] + "|" + "Acessos negados:" + str(i[0]) + "\n")
+    f_rank.close()
 
 
 #MENU:
