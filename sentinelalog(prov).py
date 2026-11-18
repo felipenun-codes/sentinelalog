@@ -92,7 +92,7 @@ def visualizar_registro_x(registro_txt : str):
 def registrar_acesso(nome_usuario, resultado: str, risco: str):
     horario_de_acesso = datetime.now().replace(microsecond=0)
     nome = nome_usuario
-    maquinadeacesso = input("digite a maquina de acesso do usuário (ex: pessoal, lab01...): ") 
+    maquinadeacesso = input("Digite a maquina de acesso do usuário (ex: pessoal, lab01...): ") 
     maquinasda.append(maquinadeacesso) 
     registroda = open("registroda.txt", "a")
     registroda.write(nome + ", " + str(horario_de_acesso) + ", " + maquinadeacesso + ", Resultado: " + resultado + " | Risco: " + risco + " \n")
@@ -307,9 +307,9 @@ gerar_relatorio_seguranca(analisar_acessos_registrados())
 
 #MENU:
 while True:
-    print("qual usuário está tentando selecionar o programa? ")
+    print("Qual usuário está tentando selecionar o programa? ")
     visualizar_nomes_u()
-    usuarioacesso = int(input("digite o número do usuário que deseja acessar o programa (ou digite 0, caso deseje registrar um novo usuário): "))
+    usuarioacesso = int(input("Digite o número do usuário que deseja acessar o programa (ou digite 0, caso deseje registrar um novo usuário): "))
 
     if usuarioacesso <= (len(nomes_u)):   #'nome_usuario' será o registrado como responsável pela ação x no registro de auditoria
         if usuarioacesso == 0:
@@ -318,15 +318,15 @@ while True:
         else:
             nome_usuario = nomes_u[usuarioacesso-1]
     else:
-        print("usuario invalido.")
-        break
+        print("\nUsuário invalido.\n\n")
+        continue
 
     for i in range (len(nomes_u)):           #permissão dependendo  horário
         if nome_usuario == nomes_u[i]:
             if datetime.now().hour not in (ran_horariopermitido(perfis[i])):
-                print("Fora do horário de acesso permitido. Acesso negado. ")
+                print("\nFora do horário de acesso permitido. Acesso negado.\n\n ")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
-                break
+                
 
     if len(usuarios_bloqueados) >= 1:
         for i in range (len(usuarios_bloqueados)):
@@ -352,7 +352,7 @@ while True:
         hora_do_bloqueio.append(datetime.now().hour)
         dia_do_bloqueio.append(datetime.now().day)
         registro_externo("ext_usuarios_bloqueados.txt",nome_usuario)
-        break
+        continue
     ultimo_usuario = nome_usuario
   
     mostrar_menu()
@@ -416,7 +416,7 @@ while True:
                             contar_falhas()
                             registrar_acesso(nome_usuario, "falha", "normal")                                                    
                             print("operação inválida.")
-                            break
+                            continue
                 else:
                     registrar_acesso(nome_usuario, "falha", "suspeito")     #falhas repetidas da matricula == acesso suspeito registrado
                     contar_falhas()
@@ -424,7 +424,7 @@ while True:
                 print("usuário inválido.") 
                 registrar_acesso(nome_usuario, "falha", "normal")
                 contar_falhas
-                break           
+                continue        
 
     elif comando == 3:
         #Registrar usuário
