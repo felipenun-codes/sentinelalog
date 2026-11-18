@@ -35,7 +35,7 @@ def ran_horariopermitido(perfil):
     elif perfil == "professor":
         return list(range(7, 20))
     else:
-        return list(range(7,20))
+        return list(range(7,18))
 
 maquinasda = []            
 contador_falhas = 0       
@@ -157,9 +157,9 @@ def registro_externo(registro_ext: str, armazenavel):        #'ext_nomes_u.txt';
     registroexterno.close()
 
 def externo_interno(registro_ext: str):
-    registro_ext = open("ext_nomes_u.txt", "r", encoding="utf8")
-    lista = (registro_ext.read()).split(",")             #não sei se preciso retornar essa lista. ela já existe externamente e já está recebendo dados do arquivo, então acho que não?
-    registro_ext.close()
+    registroexterno = open(registro_ext, "r", encoding="utf8")
+    lista = (registroexterno.read()).split(",")             #não sei se preciso retornar essa lista. ela já existe externamente e já está recebendo dados do arquivo, então acho que não?
+    registroexterno.close()
     return lista
 
 def contar_falhas():
@@ -177,8 +177,6 @@ if os.path.isfile("ext_nomes_u.txt"):
         usuarios_bloqueados = externo_interno("ext_usuarios_bloqueados.txt")
     nomes_u = externo_interno("ext_nomes_u.txt")
 
-
-# # # # # # # # # # # #
 
 def ler_maquinas_bloqueadas():       #recebe o perfil do usuario, a hora de acesso, a maquina de origem e o resultado do acesso, devolvendo o nivel de risco (normal,suspeito ou critico) e a lista de motivos.
     if not os.path.exists("maquinas_bloqueadas.txt"):     #se nao existir o arquivo, retorna uma lista vazia
@@ -346,10 +344,10 @@ def relatorio_seguranca(lista_fichas):
         acessos_permitidos = open("acessos_permitidos.txt", "a", encoding="utf-8")
         acessos_negados = open("acessos_negados.txt", "a", encoding="utf-8")
         if resultado == "sucesso":                       
-            acessos_permitidos.write("Nome:" + nome + "Máquina:" + maquina + "Horário:" + str(hora) + "\n")
+            acessos_permitidos.write("Nome:" + nome + " | Máquina:" + maquina + " | Horário:" + str(hora) + " \n")
         elif resultado == "falha":
             usuario_negados.append(nome)                 
-            acessos_negados.write("Nome:" + nome + "Máquina:" + maquina + "Horário:" + str(hora) + "\n")
+            acessos_negados.write("Nome:" + nome + " | Máquina:" + maquina + " | Horário:" + str(hora) + " \n")
         acessos_negados.close()
         acessos_permitidos.close()
 
@@ -365,7 +363,7 @@ def relatorio_seguranca(lista_fichas):
 
     f_rank = open("ranking_negados.txt", "w", encoding="utf-8")
     for i in ranking:
-        f_rank.write("Usuário:" + i[1] + "|" + "Acessos negados:" + str(i[0]) + "\n")
+        f_rank.write("Usuário:" + i[1] + " | Acessos negados:" + str(i[0]) + "\n")
     f_rank.close()
 
     # --- horários com mais movimento e acessos de risco ---
@@ -434,6 +432,11 @@ while True:
     else:
         print("\nUsuário invalido.\n\n")
         continue
+
+    if not senha_acesso("matricula", nome_usuario, usuarioacesso-1):
+        registrar_acesso(nome_usuario, "falha", "suspeito")
+        print("\nMatrícula incorreta. Acesso negado.")
+        break
 
     for i in range (len(nomes_u)):          
         if nome_usuario == nomes_u[i]:
@@ -590,3 +593,4 @@ while True:
 
     else:
         print("Comando inválido. Tente novamente")
+        
