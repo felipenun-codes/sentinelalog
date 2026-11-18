@@ -91,7 +91,7 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 if GROQ_API_KEY == TEXTO_MODELO_CHAVE:
     GROQ_API_KEY = ""
 
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-120b"
 
 # Arquivos muito grandes ultrapassam o limite de texto do modelo.
 LIMITE_CARACTERES = 20000
@@ -101,10 +101,12 @@ LIMITE_CARACTERES = 20000
 # FUNÇÕES AUXILIARES
 # ============================================================================
 
-def ler_dados(nome_arquivo):
+def ler_dados(nome_arquivo, nome_arquivo2):
     """Lê o arquivo de dados. Devolve o conteúdo (texto) ou None se houver erro."""
     try:
         with open(nome_arquivo, "r", encoding="utf-8") as arquivo:
+            conteudo = arquivo.read()
+        with open(nome_arquivo2, "r", encoding="utf-8") as arquivo:
             conteudo = arquivo.read()
     except FileNotFoundError:
         print(f"\n[Agente] Arquivo '{nome_arquivo}' não encontrado.")
@@ -194,12 +196,13 @@ def explicar_erro(erro):
 # FUNÇÃO PRINCIPAL
 # ============================================================================
 
-def falar_com_agente(nome_arquivo, pergunta, nome_sistema="Sistema", streaming=False):
+def falar_com_agente(nome_arquivo, nome_arquivo2, pergunta, nome_sistema="Sistema", streaming=False):
     """
     Responde a uma pergunta sobre os dados de um ARQUIVO usando um modelo de linguagem.
 
     Parâmetros:
         nome_arquivo: caminho do arquivo .csv ou .txt com os dados
+        nome_arquivo2: caminho do segundo arquivo .csv ou .txt com os dados
         pergunta:     a pergunta do usuário (texto)
         nome_sistema: nome do sistema, usado no prompt
         streaming:    se True, mostra a resposta enquanto ela é gerada
@@ -207,7 +210,7 @@ def falar_com_agente(nome_arquivo, pergunta, nome_sistema="Sistema", streaming=F
     Devolve:
         a resposta do modelo (texto), ou None se algo der errado
     """
-    conteudo = ler_dados(nome_arquivo)
+    conteudo = ler_dados(nome_arquivo, nome_arquivo2)
     if conteudo is None:
         return None
 
