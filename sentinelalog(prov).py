@@ -285,18 +285,6 @@ def detectar_maquinas_compartilhadas(lista_fichas):
 
 detectar_maquinas_compartilhadas(analisar_acessos_registrados())
 
-def gerar_relatorio_seguranca(lista_fichas):
-    total_itens_lista = len(lista_fichas)
-    print("Total de acessos:", total_itens_lista)
-    falhas = 0
-    suspeitos = 0
-    criticos = 0
-    for ficha in lista_fichas:
-        if ficha["resultado"] == "falha":
-            falhas += 1
-    print(f"Número de falhas verificadas: {falhas}")
-
-gerar_relatorio_seguranca(analisar_acessos_registrados())
 
 acessos_registrados = []
 acessos_falhados = []
