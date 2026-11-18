@@ -32,6 +32,7 @@ def horariopermitido(perfil):           #utilizada no registrodus.txt
         horariopermitido = "7h as 22h"
     return horariopermitido
 def ran_horariopermitido(perfil):        #checagem de horário de uso para permissao de uso
+    listahora = []
     if perfil == "estudante":
         listahora = range(7, 19)
         return listahora
@@ -158,6 +159,7 @@ def externo_interno(registro_ext: str):
     return lista
 
 def contar_falhas():
+    global contador_falhas
     contador_falhas +=1
     registro_externo("ext_cont_falhas.txt", "1")      #sim, eu sei que '1' será escrito e lido como string, as falhas serão readicionadas com (len( .txt).split(","))
 
@@ -166,10 +168,13 @@ if os.path.isfile("ext_nomes_u.txt"):
     matriculas = externo_interno("ext_matriculas.txt")
     perfis = externo_interno("ext_perfis.txt")
     if os.path.isfile("ext_cont_falhas.txt"):
-        contador_falhas = externo_interno("ext_cont_falhas.txt")
+        contador_falhas = len(externo_interno("ext_cont_falhas.txt"))
     if os.path.isfile("ext_usuarios_bloqueados.txt"):
         usuarios_bloqueados = externo_interno("ext_usuarios_bloqueados.txt")
     nomes_u = externo_interno("ext_nomes_u.txt")
+
+
+# # # # # # # # # # # #
 
 def ler_maquinas_bloqueadas():       #recebe o perfil do usuario, a hora de acesso, a maquina de origem e o resultado do acesso, devolvendo o nivel de risco (normal,suspeito ou critico) e a lista de motivos.
     if not os.path.exists("maquinas_bloqueadas.txt"):     #se nao existir o arquivo, retorna uma lista vazia
@@ -187,6 +192,9 @@ def maquina_esta_bloqueada(maquina):
 
     
           #verifica se a máquina está na lista de máquinas bloqueadas
+
+
+    ### DEVE SER IMPLEMENTADA EM REGISTRAR ACESSO
 def classificar_acesso(perfil,hora,maquina,resultado):        #recebe o perfil do usuario, a hora de acesso, a maquina de origem e o resultado do acesso, devolvendo o nivel de risco (normal,suspeito ou crítico) e a lista de motivos.
     pontos = 0
     motivos = []
@@ -341,9 +349,11 @@ while True:
     for i in range (len(nomes_u)):           #permissão dependendo  horário
         if nome_usuario == nomes_u[i]:
             if datetime.now().hour not in (ran_horariopermitido(perfis[i])):
-                print("\nFora do horário de acesso permitido. Acesso negado.\n\n ")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
-                break
+                print("\nFora do horário de acesso permitido. Acesso negado.\n ")
+                foradohorario = True
+    if foradohorario:
+        break
                 
 
     if len(usuarios_bloqueados) >= 1:
@@ -483,14 +493,3 @@ while True:
 
     else:
         print("Comando inválido. Tente novamente")
-
-
-
-        
-            
-
-
-
-
-
-                
