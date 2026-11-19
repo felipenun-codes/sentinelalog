@@ -71,15 +71,6 @@ def visualizar_nomes_u():
         print("[nenhum usuário registrado]")
 
 def visualizar_registro_x(registro_txt : str):
-    if not os.path.exists(registro_txt):
-        print("[nenhum registro encontrado]")
-        return
-    with open(registro_txt, "r", encoding="utf8") as v_registro:
-        conteudo = v_registro.read()
-    if conteudo:
-        print(conteudo)
-    else:
-        print("[registro vazio]")
     v_registro = open(registro_txt, "r", encoding="utf-8")
     print(v_registro.read())
     v_registro.close()
@@ -133,7 +124,7 @@ def mostrar_menu():
     print("5. Alertas de máquinas compartilhadas")
     print("6. Relatório de segurança")
     print("7. Consultar log de auditoria")
-    print("8. Funcionalidade extra")
+    print("8. Acionar detector de força bruta")
     print("9. Perguntar à IA (em breve)")
     print("0. Sair")
 
@@ -580,11 +571,15 @@ while True:
         registrar_operacao("consultar acessos", "None", nome_usuario )
 
     elif comando == 5:
+        #Alerta de Máquinas Compartilhadas
+        registrar_acesso(nome_usuario, "sucesso", "normal")
         acessos = analisar_acessos_registrados()
         detectar_maquinas_compartilhadas(acessos)
+        registrar_operacao("consultar máquinas compartilhadas", "None", nome_usuario)
 
-        #Relatório de segurança
+        
     elif comando == 6:
+            #Relatório de segurança
             if not senha_acesso("senha","administrador",usuarioacesso-1):
                 print("\nsenha incorreta")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
@@ -598,8 +593,8 @@ while True:
                 nome_usuario
             )
 
-        # Consultar log de auditoria
     elif comando == 7:
+        # Consultar log de auditoria
         registrar_acesso(nome_usuario, "sucesso", "normal")
         visualizar_registro_x("registroaud.txt")
         registrar_operacao("consultar auditoria", "None", nome_usuario)
@@ -612,7 +607,7 @@ while True:
         registrar_operacao("consultar detecção de força bruta", "None", nome_usuario) # Funcionalidade extra
 
     elif comando == 9:
-            # Perguntar à IA (em breve)
+        # Perguntar à IA (em breve)
         print("dps")
 
     elif comando == 0:
