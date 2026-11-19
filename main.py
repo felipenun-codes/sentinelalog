@@ -580,6 +580,7 @@ while True:
         
     elif comando == 6:
             #Relatório de segurança
+            print("Somente administradores podem acessar essa área!")
             if not senha_acesso("senha","administrador",usuarioacesso-1):
                 print("\nsenha incorreta")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
