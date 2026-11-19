@@ -105,9 +105,9 @@ def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina suces
     elif user_permitido == "administrador":
         print("Somente administradores podem acessar essa área!")
         senha = input(f"digite a {senha_a} de {user_permitido}: ")
-        if senha != "senhadeadministrador":        #senha obviamente provisoria
+        if senha != "sentinela":        #senha obviamente provisoria
             return False
-        elif senha == "senhadeadministrador":       #senha novamente provisoria
+        elif senha == "sentinela":       #senha novamente provisoria
             return True
 
 def registrar_operacao(operacao: str, i_usuario, r_usuario):   #registro de auditoria
