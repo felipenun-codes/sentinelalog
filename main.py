@@ -1,21 +1,11 @@
-# SENTINELA.LOG
-
-#O sistema deve permitir adicionar, visualizar, editar e excluir usuários, com informações como:
-#nome, matrícula, perfil (estudante, professor, administrador), horário permitido de acesso (por
-#exemplo, das 7h às 18h) e observações.
-#O sistema deve também registrar e consultar acessos, com: usuário, data e hora, máquina de
-#origem e resultado (sucesso ou falha). Um registro de acesso não pode ser editado depois,
-#pensem por quê.
-#Ao listar os usuários, as matrículas não devem aparecer por completo na tela. Mostre apenas
-#parte delas — por exemplo, os dois primeiros caracteres seguidos de asteriscos. Deve existir uma
-#opção específica para revelar uma matrícula.
+#  #  # SENTINELA.LOG #  #  #
 
 #registroda = registro de acessos
 #registrodus = registro de usuários
 #registroaud = registro de ações
 
 import os
-#os.system("cls")
+os.system("cls")
 from datetime import datetime
 
 nomes_u =[]      
@@ -107,7 +97,7 @@ def registrar_acesso(nome_usuario, resultado: str, risco: str):
 def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina sucesso ou falha do acesso
     if user_permitido == nomes_u[i_usuario] and senha_a == "matricula":      #matricula como senha; utilizada para 'Gerenciar usuário'
         for i in range (4):
-            senha = input(f"digite a {senha_a} de {user_permitido}: ")
+            senha = input(f"\ndigite a {senha_a} de {user_permitido}: ")
             if senha == matriculas[i_usuario] :
                 return True
             else:
@@ -143,7 +133,7 @@ def mostrar_menu():
     print("5. Alertas de máquinas compartilhadas")
     print("6. Relatório de segurança")
     print("7. Consultar log de auditoria")
-    print("8. Acionar Detector de força bruta")
+    print("8. Funcionalidade extra")
     print("9. Perguntar à IA (em breve)")
     print("0. Sair")
 
@@ -381,8 +371,6 @@ def relatorio_seguranca(lista_fichas):
             criticos += 1
 
     maior = max(contagem_horas)       
-
-    #aqui guilhermin do brawls stars vai implementar/chamar uma estrutura que permita somente alguém autorizado a visualizar esse relatório de segurança
      
     print("\nAcessos permitidos:", permitidos)
     print("Acessos negados:", negados)
@@ -448,6 +436,7 @@ def detectar_forca_bruta(lista_fichas):
     else:
         print("Nenhuma sequência de 3 ou mais falhas seguidas por usuário foi detectada no log.")
 
+
 #MENU:
 while True:
     block = False
@@ -455,24 +444,22 @@ while True:
     visualizar_nomes_u()
     usuarioacesso = int(input("Digite o número do usuário que deseja acessar o programa (ou digite 0, caso deseje registrar um novo usuário): "))
 
-    if usuarioacesso <= (len(nomes_u)):   #'nome_usuario' será o registrado como responsável pela ação x no registro de auditoria
+    if usuarioacesso <= (len(nomes_u)):
         if usuarioacesso == 0:
             registrar_usuario()
             nome_usuario = nomes_u[(len(nomes_u)-1)]
         else:
             nome_usuario = nomes_u[usuarioacesso-1]
+            if not senha_acesso("matricula", nome_usuario, usuarioacesso-1):
+                    registrar_acesso(nome_usuario, "falha", "suspeito")
+                    print("\nMatrícula incorreta. Acesso negado.")
+                    break
     else:
         print("\nUsuário invalido.\n\n")
         continue
 
-    if not senha_acesso("matricula", nome_usuario, usuarioacesso-1):
-        registrar_acesso(nome_usuario, "falha", "suspeito")
-        print("\nMatrícula incorreta. Acesso negado.")
-        break
-
     for i in range (len(nomes_u)):          
         if nome_usuario == nomes_u[i]:
-            print(ran_horariopermitido(perfis[i]))  #PRINT PROVISORIO PARA IDENTIFICAÇÃO DE ERROS
             if datetime.now().hour not in (ran_horariopermitido(perfis[i])):
                 registrar_acesso(nome_usuario, "falha", "suspeito")
                 print("\nFora do horário de acesso permitido. Acesso negado.\n ")
@@ -498,7 +485,7 @@ while True:
         if os.path.isfile("ext_cont_falhas.txt"):          #deleta arquivo de armazenamento de falhas
             os.remove("ext_cont_falhas.txt")
         ultimo_usuario = nome_usuario
-    elif nome_usuario == ultimo_usuario and contador_falhas > 5:        #esse método deixa uma brecha na identificação de falhas. um sujeito mal intencionado pode mudar usuários para resetar o contador_falhas.
+    elif nome_usuario == ultimo_usuario and contador_falhas > 5:  
         print("SentinelaLog identificou várias tentativas de acesso sucessivas que resultaram em falha. Acesso bloqueado.")
         registrar_acesso(nome_usuario, "falha", "crítico")
         usuarios_bloqueados.append(nome_usuario)
@@ -516,6 +503,7 @@ while True:
         registrar_acesso(nome_usuario, "sucesso","normal")
         visualizar_registro_x("registrodus.txt")
         registrar_operacao("vizualizar registro de usuários", "None", nome_usuario)
+        break
 
     elif comando == 2:
         #Gerenciar usuários
@@ -562,7 +550,7 @@ while True:
                         perfis.pop(usuario_e)
                         atualizar_registrodus()
                     else:
-                        if contador_falhas >= 3:            #VALORES DECIDIDOS ARBITRARIAMENTE
+                        if contador_falhas >= 3:         
                            contar_falhas()
                            registrar_acesso(nome_usuario, "falha", "suspeito")
                         else:
@@ -581,13 +569,13 @@ while True:
 
     elif comando == 3:
         #Registrar usuário
-        registrar_acesso(nome_usuario, "sucesso", "normal")     #não acho q seja necessario implementar senha pra isso
+        registrar_acesso(nome_usuario, "sucesso", "normal")  
         registrar_usuario()
         registrar_operacao("registro de usuário", nomes_u[(len(nomes_u)-1)], nome_usuario)
 
     elif comando == 4:
         #Consultar acessos
-        registrar_acesso(nome_usuario, "sucesso", "normal")         #podemos implementar senha es quiserem    
+        registrar_acesso(nome_usuario, "sucesso", "normal")          
         visualizar_registro_x("registroda.txt")
         registrar_operacao("consultar acessos", "None", nome_usuario )
 
@@ -597,6 +585,10 @@ while True:
 
         #Relatório de segurança
     elif comando == 6:
+            if not senha_acesso("senha","administrador",usuarioacesso-1):
+                print("\nsenha incorreta")
+                registrar_acesso(nome_usuario, "falha", "suspeito")
+                break
             acessos = analisar_acessos_registrados()
             relatorio_seguranca(acessos)
             # Indentado corretamente dentro do comando 6:
@@ -613,11 +605,11 @@ while True:
         registrar_operacao("consultar auditoria", "None", nome_usuario)
             
     elif comando == 8:
+        # Funcionalidade extra
         registrar_acesso(nome_usuario, "sucesso", "normal")
         acessos = analisar_acessos_registrados()  # 1. Carrega os dados do arquivo
         detectar_forca_bruta(acessos)             # 2. Passa os dados para a detecção
         registrar_operacao("consultar detecção de força bruta", "None", nome_usuario) # Funcionalidade extra
-        
 
     elif comando == 9:
             # Perguntar à IA (em breve)
@@ -628,4 +620,3 @@ while True:
 
     else:
         print("Comando inválido. Tente novamente")
-        
