@@ -478,7 +478,7 @@ while True:
             if not senha_acesso("matricula", nome_usuario, usuarioacesso-1):
                     registrar_acesso(nome_usuario, "falha", "suspeito")
                     print("\nMatrícula incorreta. Acesso negado.")
-                    break
+                    continue
     else:
         print("\nUsuário invalido.\n\n")
         continue
