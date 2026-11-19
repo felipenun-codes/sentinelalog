@@ -1,2 +1,3 @@
 joao, 12*, estudante, 7h as 18h 
 neide, 45*, administrador, 7h as 22h 
+Suzuki, 45*, administrador, 7h as 22h 

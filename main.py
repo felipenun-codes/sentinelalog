@@ -143,7 +143,7 @@ def mostrar_menu():
     print("5. Alertas de máquinas compartilhadas")
     print("6. Relatório de segurança")
     print("7. Consultar log de auditoria")
-    print("8. Funcionalidade extra")
+    print("8. Acionar Detector de força bruta")
     print("9. Perguntar à IA (em breve)")
     print("0. Sair")
 
@@ -415,6 +415,38 @@ def relatorio_seguranca(lista_fichas):
             f_horarios.write(str(h) + "h às " + str(h+1) + "h: " + str(maior) + " acesso(s)\n")
     f_horarios.close()
 
+def detectar_forca_bruta(lista_fichas):
+    if len(lista_fichas) == 0:
+        print("Nenhum acesso registrado para análise.")
+        return
+
+    usuarios_rastreados = []
+    falhas_consecutivas = []
+    alertas_emitidos = []
+
+    for ficha in lista_fichas:
+        nome = ficha[0]
+        resultado = ficha[3].lower()
+
+        if nome not in usuarios_rastreados:
+            usuarios_rastreados.append(nome)
+            falhas_consecutivas.append(0)
+
+        idx = usuarios_rastreados.index(nome)
+
+        if resultado == "falha":
+            falhas_consecutivas[idx] += 1
+            if falhas_consecutivas[idx] >= 3 and nome not in alertas_emitidos:
+                alertas_emitidos.append(nome)
+        elif resultado == "sucesso":
+            falhas_consecutivas[idx] = 0
+
+    print("\n=== Detector de Força Bruta (Análise Histórica do Log) ===")
+    if len(alertas_emitidos) > 0:
+        for usuario in alertas_emitidos:
+            print(f"ALERTA DE FORÇA BRUTA: O usuário '{usuario}' registrou 3 ou mais falhas consecutivas no histórico de acessos (mesmo que intercaladas com outros usuários).")
+    else:
+        print("Nenhuma sequência de 3 ou mais falhas seguidas por usuário foi detectada no log.")
 
 #MENU:
 while True:
@@ -581,8 +613,11 @@ while True:
         registrar_operacao("consultar auditoria", "None", nome_usuario)
             
     elif comando == 8:
-            # Funcionalidade extra
-        print("dps")
+        registrar_acesso(nome_usuario, "sucesso", "normal")
+        acessos = analisar_acessos_registrados()  # 1. Carrega os dados do arquivo
+        detectar_forca_bruta(acessos)             # 2. Passa os dados para a detecção
+        registrar_operacao("consultar detecção de força bruta", "None", nome_usuario) # Funcionalidade extra
+        
 
     elif comando == 9:
             # Perguntar à IA (em breve)
