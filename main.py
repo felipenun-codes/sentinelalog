@@ -97,6 +97,7 @@ def senha_acesso(senha_a: str, user_permitido, i_usuario):      #determina suces
         return False   
         
     elif user_permitido == "administrador":
+        print("Somente administradores podem acessar essa área!")
         senha = input(f"digite a {senha_a} de {user_permitido}: ")
         if senha != "senhadeadministrador":        #senha obviamente provisoria
             return False
@@ -633,6 +634,8 @@ while True:
         registrar_operacao("consultar detecção de força bruta", "None", nome_usuario) # Funcionalidade extra
 
     elif comando == 9:
+        registrar_acesso(nome_usuario, "sucesso", "normal")
+        registrar_operacao("consultar agente IA", "None", nome_usuario)
         ia()
 
     elif comando == 0:
@@ -647,4 +650,3 @@ while True:
         continue
     elif reinicio == False:
         break
-
