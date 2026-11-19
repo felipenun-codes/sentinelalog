@@ -21,7 +21,7 @@ def horariopermitido(perfil):
     return horariopermitido
 def ran_horariopermitido(perfil):       
     if perfil == "administrador":
-        return list(range(7,22))
+        return list(range(7,24))
     elif perfil == "professor":
         return list(range(7, 20))
     else:
@@ -580,7 +580,6 @@ while True:
         
     elif comando == 6:
             #Relatório de segurança
-            print("Somente administradores podem acessar essa área!")
             if not senha_acesso("senha","administrador",usuarioacesso-1):
                 print("\nsenha incorreta")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
@@ -608,10 +607,15 @@ while True:
         registrar_operacao("consultar detecção de força bruta", "None", nome_usuario) # Funcionalidade extra
 
     elif comando == 9:
-        # Perguntar à IA (em breve)
+        # Perguntar à IA
+        if not senha_acesso("senha", "administrador", usuarioacesso-1):
+            print("\nsenha incorreta")
+            registrar_acesso(nome_usuario, "falha", "suspeito")
+            break
         print("dps")
 
     elif comando == 0:
+        registrar_acesso(nome_usuario, "sucesso", "normal")
         break
 
     else:
