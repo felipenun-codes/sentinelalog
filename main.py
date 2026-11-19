@@ -21,11 +21,11 @@ def horariopermitido(perfil):
     return horariopermitido
 def ran_horariopermitido(perfil):       
     if perfil == "administrador":
-        return list(range(7,24))
+        return list(range(7,22))
     elif perfil == "professor":
         return list(range(7, 20))
     else:
-        return list(range(7,18))
+        return list(range(7, 18))
 
 maquinasda = []            
 contador_falhas = 0       
@@ -72,7 +72,7 @@ def visualizar_nomes_u():
 
 def visualizar_registro_x(registro_txt : str):
     v_registro = open(registro_txt, "r", encoding="utf-8")
-    print(v_registro.read())
+    print("\n", v_registro.read())
     v_registro.close()
 
 def registrar_acesso(nome_usuario, resultado: str, risco: str):
@@ -427,6 +427,20 @@ def detectar_forca_bruta(lista_fichas):
     else:
         print("Nenhuma sequência de 3 ou mais falhas seguidas por usuário foi detectada no log.")
 
+def fim_ou_reinicio():
+    global reinicio
+    while True:
+        escolha = input("\nO que você deseja fazer agora?\n1. Reiniciar o programa\n2. Encerrar o programa\n\nDigite uma opção: ")
+        if escolha == "1":
+            reinicio = True
+            break
+        elif escolha == "2":
+            print("\nEncerrando o programa. Até logo!")
+            reinicio = False
+            break
+    
+
+        
 
 #MENU:
 while True:
@@ -494,7 +508,7 @@ while True:
         registrar_acesso(nome_usuario, "sucesso","normal")
         visualizar_registro_x("registrodus.txt")
         registrar_operacao("vizualizar registro de usuários", "None", nome_usuario)
-        break
+        fim_ou_reinicio()
 
     elif comando == 2:
         #Gerenciar usuários
@@ -580,6 +594,7 @@ while True:
         
     elif comando == 6:
             #Relatório de segurança
+            print("Somente administradores podem acessar essa área!")
             if not senha_acesso("senha","administrador",usuarioacesso-1):
                 print("\nsenha incorreta")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
@@ -607,16 +622,17 @@ while True:
         registrar_operacao("consultar detecção de força bruta", "None", nome_usuario) # Funcionalidade extra
 
     elif comando == 9:
-        # Perguntar à IA
-        if not senha_acesso("senha", "administrador", usuarioacesso-1):
-            print("\nsenha incorreta")
-            registrar_acesso(nome_usuario, "falha", "suspeito")
-            break
+        # Perguntar à IA (em breve)
         print("dps")
 
     elif comando == 0:
-        registrar_acesso(nome_usuario, "sucesso", "normal")
         break
 
     else:
         print("Comando inválido. Tente novamente")
+
+    if reinicio:
+        continue
+    elif reinicio == False:
+        break
+
