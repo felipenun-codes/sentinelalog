@@ -40,13 +40,19 @@ def registrar_usuario():    #'registrodus.txt' registra as matriculas ja censura
     while True:
       perfil = input("digite o perfil do usuário a ser registrado ('estudante', 'professor' ou 'administrador'): ").lower()
       if perfil == "estudante" or perfil == "professor" or perfil == "administrador":
-          perfis.append(perfil)
-          registro_externo("ext_perfis.txt", perfil)
           nome = input("digite o nome do usuário: ")
+          while True:  
+            matricula = input("digite a matrícula do usuário: ")
+            if len(matricula) == 6:
+                break
+            else:
+                print("matricula inválida. digite uma matricula com 6 digitos.")
+        
+          perfis.append(perfil)
           nomes_u.append (nome)
-          registro_externo("ext_nomes_u.txt", nome)
-          matricula = input("digite a matrícula do usuário: ")
           matriculas.append(matricula)
+          registro_externo("ext_nomes_u.txt", nome)
+          registro_externo("ext_perfis.txt", perfil)
           registro_externo("ext_matriculas.txt", matricula)
                         
           registrodus = open("registrodus.txt", "a", encoding="utf8")
@@ -427,7 +433,7 @@ def detectar_forca_bruta(lista_fichas):
         for usuario in alertas_emitidos:
             print(f"ALERTA DE FORÇA BRUTA: O usuário '{usuario}' registrou 3 ou mais falhas consecutivas no histórico de acessos (mesmo que intercaladas com outros usuários).")
     else:
-        print("Nenhuma sequência de 3 ou mais falhas seguidas por usuário foi detectada no log.")
+	    print("Nenhuma sequência de 3 ou mais falhas seguidas por usuário foi detectada no log.")
 
 def ia():
     while True:
@@ -450,6 +456,8 @@ def fim_ou_reinicio():
             print("\nEncerrando o programa. Até logo!")
             reinicio = False
             break
+        else:
+            print("\nOpção inválida.")
     
 
         
@@ -606,7 +614,6 @@ while True:
         
     elif comando == 6:
             #Relatório de segurança
-            print("Somente administradores podem acessar essa área!")
             if not senha_acesso("senha","administrador",usuarioacesso-1):
                 print("\nsenha incorreta")
                 registrar_acesso(nome_usuario, "falha", "suspeito")
