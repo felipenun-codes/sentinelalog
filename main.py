@@ -7,6 +7,7 @@
 import os
 os.system("cls")
 from datetime import datetime
+from agente import falar_com_agente
 
 nomes_u =[]      
 matriculas = []
@@ -427,6 +428,16 @@ def detectar_forca_bruta(lista_fichas):
     else:
         print("Nenhuma sequência de 3 ou mais falhas seguidas por usuário foi detectada no log.")
 
+def ia():
+    while True:
+                arquivo = "registrodus.txt"
+                arquivo2 = "registroda.txt"
+                sistema = "SentinelaLog"
+                pergunta = input("\nCaso deseje sair, digite 'sair'.\nCaso contrário faça sua pergunta para a IA > ").strip()
+                if pergunta.lower() == "sair":
+                    break
+                falar_com_agente(arquivo, arquivo2, pergunta, sistema)
+
 def fim_ou_reinicio():
     global reinicio
     while True:
@@ -508,7 +519,7 @@ while True:
         registrar_acesso(nome_usuario, "sucesso","normal")
         visualizar_registro_x("registrodus.txt")
         registrar_operacao("vizualizar registro de usuários", "None", nome_usuario)
-        fim_ou_reinicio()
+        
 
     elif comando == 2:
         #Gerenciar usuários
@@ -622,15 +633,16 @@ while True:
         registrar_operacao("consultar detecção de força bruta", "None", nome_usuario) # Funcionalidade extra
 
     elif comando == 9:
-        # Perguntar à IA (em breve)
-        print("dps")
+        ia()
 
     elif comando == 0:
         break
+        
 
     else:
         print("Comando inválido. Tente novamente")
 
+    fim_ou_reinicio()
     if reinicio:
         continue
     elif reinicio == False:
