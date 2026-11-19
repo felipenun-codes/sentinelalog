@@ -1,66 +1,79 @@
+SentinelaLog
 
-# SentinelaLog
+O SentinelaLog é um sistema em Python que a gente fez para acompanhar quem acessa o laboratório e quando. Ele cadastra usuários, guarda um histórico de acessos e avisa quando alguma coisa parece estranha, como alguém entrando de madrugada ou errando a matrícula várias vezes seguidas.
 
-Sistema desenvolvido em Python para monitoramento de acessos em um ambiente de laboratório, com registro de atividades, gerenciamento de usuários e identificação de possíveis comportamentos suspeitos.
+Foi feito na disciplina de Fundamentos de Programação, então tudo roda no terminal e os dados ficam em arquivos .txt, sem banco de dados.
 
-## Sobre o projeto
+O que ele faz
 
-O **SentinelaLog** é um sistema de monitoramento que busca auxiliar no controle de acesso a laboratórios. Ele permite cadastrar usuários, consultar registros de acesso e manter um histórico de operações realizadas no programa.
+Usuários
 
-O projeto também possui mecanismos de análise de risco, considerando fatores como tentativas de acesso malsucedidas, utilização de máquinas bloqueadas e acessos realizados fora do horário permitido.
+Cadastro com nome, matrícula (precisa ter 6 dígitos) e perfil: estudante, professor ou administrador.
+Ao abrir o programa, a pessoa escolhe quem é na lista e confirma com a matrícula. São 4 tentativas.
+Dá para editar e excluir usuários. Para isso é preciso digitar a matrícula do usuário que vai ser alterado.
+As matrículas aparecem censuradas (12****) quando a lista de usuários é mostrada. Para ver a matrícula inteira, só com a senha de administrador.
 
-## Funcionalidades
+Horários
 
-- **Cadastro de usuários:** permite registrar nome, matrícula e perfil do usuário.
-- **Gerenciamento de usuários:** permite editar e excluir usuários cadastrados.
-- **Controle de acesso:** considera horários permitidos de acordo com o perfil:
-  - Estudante: das 7h às 18h.
-  - Professor: das 7h às 20h.
-  - Administrador: das 7h às 22h.
-- **Proteção de matrículas:** exibe as matrículas parcialmente ocultas durante a consulta de usuários.
-- **Visualização de matrícula:** possui uma opção específica para consultar a matrícula completa, mediante autorização.
-- **Registro de acessos:** armazena o usuário, a data, o horário, a máquina de origem e o resultado do acesso.
-- **Log de auditoria:** registra operações importantes realizadas no sistema.
-- **Análise de risco:** classifica acessos como normais, suspeitos ou críticos.
-- **Máquinas bloqueadas:** utiliza o arquivo `maquinas_bloqueadas.txt` para identificar máquinas que apresentam restrições.
+Cada perfil tem um horário permitido. Fora dele, o acesso é negado e fica registrado.
 
+Estudante: 7h às 18h
+Professor: 7h às 20h
+Administrador: 7h às 22h
 
-## Tecnologias utilizadas
+Registros
 
-- Python 
-- Biblioteca `os`
-- Biblioteca `datetime`
+Todo acesso é guardado com nome, data e hora, máquina usada, resultado (sucesso ou falha) e nível de risco.
+Toda ação importante (cadastrar, editar, excluir, consultar relatórios) vai para o log de auditoria, dizendo quem fez e quem foi afetado.
 
+Segurança
 
-## Como executar
+Bloqueio temporário: se um usuário erra demais em sequência, ele fica bloqueado por 2 horas.
+Níveis de risco: a função classificar_acesso dá pontos para cada sinal de perigo e classifica o acesso como normal, suspeito ou crítico. Falha de acesso vale 1 ponto, máquina bloqueada vale 3, acesso fora do horário vale 2 e acesso de madrugada (1h às 5h) vale 4. Até 2 pontos é normal, de 3 a 6 é suspeito e 7 ou mais é crítico.
+Máquinas bloqueadas: é só escrever o nome da máquina, uma por linha, no arquivo maquinas_bloqueadas.txt. Esse arquivo precisa ser criado na mão.
+Máquinas compartilhadas: o programa avisa quando a mesma máquina foi usada por mais de uma pessoa.
+Força bruta: ele olha o histórico e alerta quando alguém tem 3 ou mais falhas seguidas.
+Relatório de segurança: só para administrador. Mostra o total de acessos, quem mais errou, os horários mais movimentados e quantos acessos foram suspeitos ou críticos.
+IA: dá para fazer perguntas sobre os registros de usuários e de acessos. Essa parte fica no arquivo agente.py.
+Menu
+1. Visualizar usuários
+2. Gerenciar usuários
+3. Registrar usuário
+4. Consultar acessos
+5. Alertas de máquinas compartilhadas
+6. Relatório de segurança
+7. Consultar log de auditoria
+8. Acionar detector de força bruta
+9. Perguntar à IA
+0. Sair
+Como rodar
 
-1. Instale o Python em seu computador.
-2. Baixe este repositório.
-3. Abra a pasta do projeto.
-4. Execute o arquivo principal pelo terminal:
+Precisa só do Python instalado. Baixe o repositório, abra a pasta no terminal (o agente.py tem que estar junto do arquivo principal) e rode:
 
+bash
 python sentinela.py
 
-Caso o arquivo principal tenha outro nome, substitua `sentinela.py` pelo nome correto.
+O programa usa o comando cls para limpar a tela, que é do Windows. No Linux ou no Mac pode aparecer uma mensagem de erro no começo, mas ele continua funcionando.
 
-## Arquivos de armazenamento
+Arquivos que o programa cria
 
-O sistema utiliza arquivos `.txt` para armazenar informações e manter os registros entre execuções.
+Os dados ficam em .txt na mesma pasta do programa.
 
-| Arquivo | Finalidade |
-|---|---|
-| `registrodus.txt` | Armazena os dados dos usuários |
-| `registroda.txt` | Armazena os registros de acesso |
-| `registroaud.txt` | Armazena o histórico de auditoria |
-| `ext_nomes_u.txt` | Armazena os nomes cadastrados |
-| `ext_matriculas.txt` | Armazena as matrículas |
-| `ext_perfis.txt` | Armazena os perfis dos usuários |
-| `maquinas_bloqueadas.txt` | Lista as máquinas bloqueadas |
+registrodus.txt: lista de usuários, já com a matrícula censurada
+registroda.txt: registro de acessos
+registroaud.txt: log de auditoria
+ext_nomes_u.txt, ext_matriculas.txt e ext_perfis.txt: guardam os usuários para o programa recarregar quando abrir de novo
+ext_cont_falhas.txt e ext_usuarios_bloqueados.txt: guardam as falhas seguidas e os bloqueios
+maquinas_bloqueadas.txt: lista de máquinas bloqueadas (criado manualmente)
+acessos_permitidos.txt, acessos_negados.txt, ranking_negados.txt e horarios_movimento.txt: criados toda vez que o relatório de segurança é gerado
+O que ainda falta melhorar
+A senha de administrador (sentinela) está escrita direto no código. É provisória.
+As matrículas ficam sem criptografia no ext_matriculas.txt.
+Nome com vírgula quebra o carregamento dos dados, porque a vírgula é o separador.
+A função classificar_acesso ainda não está ligada ao registro de acessos, então por enquanto o nível de risco é escolhido manualmente em cada chamada.
+Editar e excluir usuário atualiza o registrodus.txt, mas não os arquivos ext_*. Ao reiniciar, essas mudanças podem voltar ao que era antes.
+Na edição de dados, o programa pede "matrícula" com acento, mas só aceita "matricula" sem acento.
+No relatório, os contadores de acessos permitidos e negados aparecem sempre como 0. Os arquivos gerados estão certos, só o número na tela que não.
+Quem fez
 
-
-
-## Autores
-
-Desenvolvido por: **[Bernardo Valença, Felipe Nunes Leal, Guilherme Motta , Guilherme Staundinger, João Vincius Mendonça, Mateus Mendonça, ]**
-
-Projeto Fundamentos de Programação — SentinelaLog.
+Bernardo Valença, Felipe Nunes Leal, Guilherme Motta, Guilherme Staundinger, João Vinícius Mendonça e Mateus Mendonça.
